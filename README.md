@@ -1,2 +1,3 @@
-# file-validation-api
-A microservice to Validate CSV files received from AML supervisory bodies.
+# File Validation API
+
+A Spring Boot microservice to validate CSV files received from AML supervisory bodies.
