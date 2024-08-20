@@ -1,0 +1,4 @@
+app_name: file-validation-api
+group: api
+
+weight: 100
