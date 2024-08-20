@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Start script for acsp-api
+# Start script for file-validation-api
 
 PORT=8080
 

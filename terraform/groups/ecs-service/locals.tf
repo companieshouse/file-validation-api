@@ -8,7 +8,7 @@ locals {
   docker_repo               = "file-validation-api"
   lb_listener_rule_priority = # check available rule numbers
   lb_listener_paths         = [""]
-  healthcheck_path          = "/file-validation-api/healthcheck" #healthcheck path for acsp-api service
+  healthcheck_path          = "/file-validation-api/healthcheck" #healthcheck path for file-validation-api service
   healthcheck_matcher       = "200"
   application_subnet_ids    = data.aws_subnets.application.ids
   kms_alias                 = "alias/${var.aws_profile}/environment-services-kms"
