@@ -1,6 +1,7 @@
 environment = "staging"
 aws_profile = "staging-eu-west-2"
 
+# service configs
 log_level = "info"
 
 # Scheduled scaling of tasks
