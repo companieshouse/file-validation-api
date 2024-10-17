@@ -12,7 +12,6 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
-import uk.gov.companieshouse.filevalidationservice.models.File;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -77,13 +76,13 @@ class FileTransferServiceTest {
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         when(fileTransferEndpoint.download(TEST_FILE_ID)).thenReturn(downloadResponse);
-        Optional<File> maybeFile = fileTransferService.get(TEST_FILE_ID);
+        Optional<FileApi> maybeFile = fileTransferService.get(TEST_FILE_ID);
 
         // then
         assertTrue(maybeFile.isPresent());
-        assertThat(maybeFile.get().getName(), is(equalTo(TEST_FILE_NAME)));
-        assertThat(maybeFile.get().getId(), is(equalTo(TEST_FILE_ID)));
-        assertThat(maybeFile.get().getData(), is(equalTo("Hello World!".getBytes())));
+        assertThat(maybeFile.get().getFileName(), is(equalTo(TEST_FILE_NAME)));
+        assertThat(maybeFile.get().getBody(), is(equalTo("Hello World!".getBytes())));
+
     }
 
     @Test
@@ -95,7 +94,7 @@ class FileTransferServiceTest {
 
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
-        Optional<File> maybeFile = fileTransferService.get(TEST_FILE_ID);
+        Optional<FileApi> maybeFile = fileTransferService.get(TEST_FILE_ID);
 
         // then
         assertTrue(maybeFile.isEmpty());

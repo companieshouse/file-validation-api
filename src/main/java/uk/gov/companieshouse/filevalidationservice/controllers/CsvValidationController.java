@@ -3,7 +3,7 @@ package uk.gov.companieshouse.filevalidationservice.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.companieshouse.filevalidationservice.models.File;
+import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class CsvValidationController {
     @GetMapping("/document/{document_id}")
     public ResponseEntity<?> downloadFile(@PathVariable("document_id") String id) {
         try {
-            Optional<File> downloadedFile = fileTransferService.get(id);
+            Optional<FileApi> downloadedFile = fileTransferService.get(id);
 
             if(downloadedFile.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
