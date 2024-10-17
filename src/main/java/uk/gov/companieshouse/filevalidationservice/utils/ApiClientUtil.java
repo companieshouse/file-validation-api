@@ -11,7 +11,7 @@ public class ApiClientUtil {
     private InternalApiClient internalApiClient;
 
     public InternalApiClient getInternalApiClient( final String internalApiUrl ) {
-        internalApiClient.setInternalBasePath( internalApiUrl );
+        internalApiClient.setBasePath( internalApiUrl );
         return internalApiClient;
     }
 

@@ -24,7 +24,7 @@ class ApiClientUtilTest {
     void getInternalApiClientSetsTheInternalBasePathToSpecifiedPath(){
         final var internalBasePath = "http://api.chs.local:4001";
         apiClientUtil.getInternalApiClient( internalBasePath );
-        Mockito.verify( internalApiClient ).setInternalBasePath( internalBasePath );
+        Mockito.verify( internalApiClient ).setBasePath( internalBasePath );
     }
 
 }

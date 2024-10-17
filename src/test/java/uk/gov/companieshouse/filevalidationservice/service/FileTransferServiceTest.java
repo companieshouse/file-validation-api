@@ -74,11 +74,9 @@ class FileTransferServiceTest {
 
         setupRetryStrategy();
 
-        // Mock scope
+        // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         when(fileTransferEndpoint.download(TEST_FILE_ID)).thenReturn(downloadResponse);
-
-        // when
         Optional<File> maybeFile = fileTransferService.get(TEST_FILE_ID);
 
         // then
@@ -95,10 +93,8 @@ class FileTransferServiceTest {
 
         setupRetryStrategy();
 
-        // Mock scope
-        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
-
         // when
+        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         Optional<File> maybeFile = fileTransferService.get(TEST_FILE_ID);
 
         // then
