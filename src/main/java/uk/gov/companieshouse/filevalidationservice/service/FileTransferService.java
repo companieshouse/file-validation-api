@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.filevalidationservice.service;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -16,7 +15,6 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -36,23 +34,19 @@ public class FileTransferService {
     private Optional<FileDetailsApi> getFileDetails(final String id) {
         try {
             ApiResponse<FileDetailsApi> response = fileTransferEndpoint.details(id);
-
-            HttpStatus status = HttpStatus.resolve(response.getStatusCode());
-            switch (Objects.requireNonNull(status)) {
-                case NOT_FOUND:
-                    return Optional.empty();
-                case OK:
-                    return Optional.ofNullable(response.getData());
-                default:
-                    var message = "Unexpected response status from file transfer api when getting file details.";
-                    LOGGER.errorContext(id, message, null, Map.of(
-                            "expected", "200 or 404",
-                            "status", response.getStatusCode()
-                    ));
-                    throw new RuntimeException(message);
-            }
-        } catch (ApiErrorResponseException | URIValidationException e) {
+            return Optional.ofNullable(response.getData());
+        } catch ( URIValidationException e) {
             throw new RuntimeException(e);
+        } catch (ApiErrorResponseException e) {
+            if (e.getStatusCode() == 404) {
+                return Optional.empty();
+            }
+            var message = "Unexpected response status from file transfer api when getting file details.";
+            LOGGER.errorContext(id, message, null, Map.of(
+                    "expected", "200",
+                    "status", e.getStatusCode()
+            ));
+            throw new RuntimeException(e.getMessage());
         }
     }
 

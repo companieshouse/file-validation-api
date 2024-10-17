@@ -127,20 +127,6 @@ class FileTransferServiceTest {
     }
 
     @Test
-    void testUnexpectedResponseStatusFromGetDetails() throws ApiErrorResponseException, URIValidationException {
-        // given
-        ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(500, null, null);
-
-        setupRetryStrategy();
-
-        // when
-        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
-
-        // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.get(TEST_FILE_ID));
-    }
-
-    @Test
     void testThrowsRuntimeExceptionWhenAPIErrorGettingFile() throws ApiErrorResponseException, URIValidationException {
         // given
         FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.CLEAN, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
