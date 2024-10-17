@@ -8,7 +8,6 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
-import uk.gov.companieshouse.filevalidationservice.models.File;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
@@ -50,7 +49,7 @@ public class FileTransferService {
         }
     }
 
-    public Optional<File> get(String id) {
+    public Optional<FileApi> get(String id) {
         Optional<FileDetailsApi> details = retryService.attempt(() -> {
             Optional<FileDetailsApi> maybeFileDetails;
             maybeFileDetails = getFileDetails(id);
@@ -74,8 +73,7 @@ public class FileTransferService {
         }
         try{
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
-            var file = new File(id, details.get().getName(), response.getData().getBody());
-            return Optional.of(file);
+            return Optional.of(response.getData());
         } catch (ApiErrorResponseException | URIValidationException e) {
             throw new RuntimeException(e);
         }
