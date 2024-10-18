@@ -29,6 +29,7 @@
 		<junit-jupiter.version>1.20.1</junit-jupiter.version>
 		<api-helper-java.version>3.0.1</api-helper-java.version>
 		<flapdoodle.version>4.16.1</flapdoodle.version>
+		<commons-csv.version>1.12.0</commons-csv.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -57,6 +58,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${commons-csv.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
