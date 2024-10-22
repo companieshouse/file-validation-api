@@ -51,10 +51,10 @@ public class CsvRecordValidator {
         }
     }
 
-    public static LocalDate validateDateOfBirth(String dateOfBirth) {
+    public static void validateDateOfBirth(String dateOfBirth) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-            return LocalDate.parse(dateOfBirth, formatter);
+            LocalDate.parse(dateOfBirth, formatter);
         } catch (DateTimeParseException e) {
             throw new CSVDataValidationException("Date of birth format is incorrect");
         }
