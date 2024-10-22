@@ -6,14 +6,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class CsvRecordValidator {
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_UNIQUE_ID_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COMPANY_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COMPANY_NUMBER_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_TRADING_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_FIRST_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_LAST_NAME_LENGTH;
 
-    private static final int MAX_UNIQUE_ID_LENGTH = 256;
-    private static final int MAX_COMPANY_NAME_LENGTH = 160;
-    private static final int MAX_COMPANY_NUMBER_LENGTH = 10;
-    private static final int MAX_TRADING_NAME_LENGTH = 160;
-    private static final int MAX_FIRST_NAME_LENGTH = 50;
-    private static final int MAX_LAST_NAME_LENGTH = 160;
+public class CsvRecordValidator {
 
     public static void validateUniqueId(String uniqueId) {
         if (uniqueId == null || uniqueId.isEmpty() || uniqueId.length() > MAX_UNIQUE_ID_LENGTH) {

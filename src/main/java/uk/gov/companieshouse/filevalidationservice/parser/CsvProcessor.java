@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
@@ -16,21 +15,19 @@ import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.NUMBER_OF_COLUMNS;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_UNIQUE_ID;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NUMBER;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_TRADING_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_FIRST_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_LAST_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_DATE_OF_BIRTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
+
 public class CsvProcessor {
-
-    private static final  List<String> VALID_HEADERS = List.of("UniqueID", "Registered Company Name", "Company Number", "Trading Name", "First Name", "Last Name", "Date of Birth");
-    private static final Integer NUMBER_OF_COLUMN = 7 ;
-    private static final int INDEX_OF_UNIQUE_ID = 0;
-    private static final int INDEX_OF_COMPANY_NAME = 1;
-    private static final int INDEX_OF_COMPANY_NUMBER = 2;
-    private static final int INDEX_OF_TRADING_NAME = 3;
-    private static final int INDEX_OF_FIRST_NAME = 4;
-    private static final int INDEX_OF_LAST_NAME = 5;
-    private static final int INDEX_OF_DATE_OF_BIRTH = 6;
-
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
     private final Reader reader;
-
 
 
     public CsvProcessor( byte[] bytesToParse) {
@@ -50,7 +47,7 @@ public class CsvProcessor {
                 while (it.hasNext()){
                     CSVRecord record = it.next();
                     currentRow ++;
-                    if (!NUMBER_OF_COLUMN.equals(record.size())) {
+                    if (!NUMBER_OF_COLUMNS.equals(record.size())) {
                         LOGGER.error("Incorrect number of columns");
                         return false;
                     }
