@@ -79,5 +79,62 @@ class CsvProcessorTest {
         CsvProcessor csvProcessor = new CsvProcessor(bytes);
         assertFalse(csvProcessor.parseRecords());
     }
+    @Test
+    void csvRecordWithUniqueIdOver256CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/uniqueIdOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
+    @Test
+    void csvRecordWithRegisteredCompanyOver160CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/registeredCompanyNameOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
+
+    @Test
+    void csvRecordWithCompanyNumberOver10CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/companyNumberOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
+    @Test
+    void csvRecordWithTradingNameOver160CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/tradingNameOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
+    @Test
+    void csvRecordWithFirstNameOver50CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/firstNameOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
+    @Test
+    void csvRecordWithLastNameOver160CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/lastNameOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
+    @Test
+    void csvRecordWithIncorrectDateFormatMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/incorrectDateFormat.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        CsvProcessor csvProcessor = new CsvProcessor(bytes);
+        assertFalse(csvProcessor.parseRecords());
+    }
 
 }
