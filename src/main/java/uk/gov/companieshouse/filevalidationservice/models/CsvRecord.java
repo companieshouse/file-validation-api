@@ -1,10 +1,8 @@
 package uk.gov.companieshouse.filevalidationservice.models;
 
-import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
+import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 public class CsvRecord {
 
@@ -20,12 +18,10 @@ public class CsvRecord {
     public String getUniqueId() {
         return uniqueId;
     }
+
     public void setUniqueId(String uniqueId) {
-        if (!uniqueId.isEmpty() && uniqueId.length() <= 256) {
-            this.uniqueId = uniqueId;
-        } else {
-            throw new CSVDataValidationException("Unique ID is not valid");
-        }
+        CsvRecordValidator.validateUniqueId(uniqueId);
+        this.uniqueId = uniqueId;
     }
 
     public String getRegisteredCompanyName() {
@@ -33,11 +29,8 @@ public class CsvRecord {
     }
 
     public void setRegisteredCompanyName(String registeredCompanyName) {
-        if (registeredCompanyName.length() <= 160) {
-            this.registeredCompanyName = registeredCompanyName;
-        } else {
-            throw new CSVDataValidationException("Registered Company name is over 160 characters long");
-        }
+        CsvRecordValidator.validateRegisteredCompanyName(registeredCompanyName);
+        this.registeredCompanyName = registeredCompanyName;
     }
 
     public String getCompanyNumber() {
@@ -45,11 +38,8 @@ public class CsvRecord {
     }
 
     public void setCompanyNumber(String companyNumber) {
-        if (companyNumber.length() <= 10) {
-            this.companyNumber = companyNumber;
-        } else {
-            throw new CSVDataValidationException("Company number is over 10 characters long");
-        }
+        CsvRecordValidator.validateCompanyNumber(companyNumber);
+        this.companyNumber = companyNumber;
     }
 
     public String getTradingName() {
@@ -57,11 +47,8 @@ public class CsvRecord {
     }
 
     public void setTradingName(String tradingName) {
-        if (tradingName.length() <= 160) {
-            this.tradingName = tradingName;
-        } else {
-            throw new CSVDataValidationException("Trading name is over 160 characters long");
-        }
+        CsvRecordValidator.validateTradingName(tradingName);
+        this.tradingName = tradingName;
     }
 
     public String getFirstName() {
@@ -69,11 +56,8 @@ public class CsvRecord {
     }
 
     public void setFirstName(String firstName) {
-        if (firstName.length() <= 50) {
-            this.firstName = firstName;
-        } else {
-            throw new CSVDataValidationException("First name is over 50 characters long");
-        }
+        CsvRecordValidator.validateFirstName(firstName);
+        this.firstName = firstName;
     }
 
     public String getLastName() {
@@ -81,11 +65,8 @@ public class CsvRecord {
     }
 
     public void setLastName(String lastName) {
-        if (lastName.length() <= 160) {
-            this.lastName = lastName;
-        } else {
-            throw new CSVDataValidationException("Last name is over 160 characters long");
-        }
+        CsvRecordValidator.validateLastName(lastName);
+        this.lastName = lastName;
     }
 
     public LocalDate getDateOfBirth() {
@@ -93,11 +74,6 @@ public class CsvRecord {
     }
 
     public void setDateOfBirth(String dateOfBirth) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-            this.dateOfBirth = LocalDate.parse(dateOfBirth, formatter);
-        } catch (DateTimeParseException e) {
-            throw new CSVDataValidationException("Date of birth format is incorrect");
-        }
+        this.dateOfBirth = CsvRecordValidator.validateDateOfBirth(dateOfBirth);
     }
 }
