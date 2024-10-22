@@ -16,37 +16,37 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_LA
 public class CsvRecordValidator {
 
     public static void validateUniqueId(String uniqueId) {
-        if (uniqueId == null || uniqueId.isEmpty() || uniqueId.length() > MAX_UNIQUE_ID_LENGTH) {
+        if (uniqueId.isEmpty() || uniqueId.length() > MAX_UNIQUE_ID_LENGTH) {
             throw new CSVDataValidationException("Unique ID is not valid");
         }
     }
 
     public static void validateRegisteredCompanyName(String registeredCompanyName) {
-        if (registeredCompanyName == null || registeredCompanyName.length() > MAX_COMPANY_NAME_LENGTH) {
+        if (registeredCompanyName.length() > MAX_COMPANY_NAME_LENGTH) {
             throw new CSVDataValidationException("Registered Company name is over 160 characters long");
         }
     }
 
     public static void validateCompanyNumber(String companyNumber) {
-        if (companyNumber == null || companyNumber.length() > MAX_COMPANY_NUMBER_LENGTH) {
+        if (companyNumber.length() > MAX_COMPANY_NUMBER_LENGTH) {
             throw new CSVDataValidationException("Company number is over 10 characters long");
         }
     }
 
     public static void validateTradingName(String tradingName) {
-        if (tradingName == null || tradingName.length() > MAX_TRADING_NAME_LENGTH) {
+        if (tradingName.length() > MAX_TRADING_NAME_LENGTH) {
             throw new CSVDataValidationException("Trading name is over 160 characters long");
         }
     }
 
     public static void validateFirstName(String firstName) {
-        if (firstName == null || firstName.length() > MAX_FIRST_NAME_LENGTH) {
+        if (firstName.length() > MAX_FIRST_NAME_LENGTH) {
             throw new CSVDataValidationException("First name is over 50 characters long");
         }
     }
 
     public static void validateLastName(String lastName) {
-        if (lastName == null || lastName.length() > MAX_LAST_NAME_LENGTH) {
+        if (lastName.length() > MAX_LAST_NAME_LENGTH) {
             throw new CSVDataValidationException("Last name is over 160 characters long");
         }
     }
