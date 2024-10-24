@@ -8,10 +8,7 @@ import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
-
 import java.util.Optional;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/file-validation-api")

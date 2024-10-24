@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.filevalidationservice.controllers;
 
-import net.bytebuddy.description.annotation.AnnotationList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
