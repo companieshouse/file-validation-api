@@ -38,7 +38,6 @@ public class CsvValidationController {
 
     @PostMapping("/document")
     public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file){
-        System.out.println("test");
         if (file.isEmpty() || !file.getContentType().equals("text/csv")){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload a valid CSV file.");
         }
