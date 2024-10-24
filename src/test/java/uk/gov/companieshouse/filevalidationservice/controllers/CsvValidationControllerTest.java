@@ -98,19 +98,16 @@ class CsvValidationControllerTest {
         assertEquals("", response.getBody());
     }
 
-//    @Test
-//    void testUploadEmptyFileReturnsStatus400() {
-//        // Given
-//        MultipartFile file = new MockMultipartFile("abc","", "text/csv", new byte[0] );
-//
-//        // When
-//        IdApi idApi = new IdApi("");
-//        when(fileTransferService.upload(any())).thenReturn(new ApiResponse<>(500, null, idApi));
-//        var response = csvValidationController.uploadFile(null);
-//
-//        // Then
-//        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//    }
+    @Test
+    void testUploadEmptyFileReturnsStatus400() {
+        // Given
+        MultipartFile file = new MockMultipartFile("abc","", "text/csv", new byte[0] );
+
+        var response = csvValidationController.uploadFile(file);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 
         @Test
     void testUploadInvalidFileReturnsStatus400() {

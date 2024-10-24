@@ -85,13 +85,9 @@ public class FileTransferService {
     public ApiResponse<IdApi> upload(MultipartFile file) {
         try {
             var fileApi = new FileApi(file.getName(),file.getBytes(),"text/csv",(int)file.getSize(),".csv");
-            ApiResponse<IdApi> response =  fileTransferEndpoint.upload(fileApi);
-            return response;
-        } catch (ApiErrorResponseException | URIValidationException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+            return fileTransferEndpoint.upload(fileApi);
+        } catch (URIValidationException | IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 }

@@ -175,17 +175,12 @@ class FileTransferServiceTest {
     }
 
     @Test
-    void testUploadFileThrowsIOExceptionException() throws ApiErrorResponseException, URIValidationException {
+    void testUploadFileThrowsIOExceptionException() throws IOException, URIValidationException {
         // Given
-        MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
-
+        MultipartFile mockFile = mock(MultipartFile.class);
         // when
-        IdApi idApi = new IdApi("123");
-        doAnswer((invocation) -> {
-            throw new IOException("invalid");
-        }).when(fileTransferEndpoint).upload(any());
-
+        when(mockFile.getBytes()).thenThrow(IOException.class);
         // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.upload(file));
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(mockFile));
     }
 }
