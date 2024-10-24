@@ -5,12 +5,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
+import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 
@@ -18,11 +21,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -139,5 +143,43 @@ class FileTransferServiceTest {
 
         // then
         assertThrows(RuntimeException.class, () -> fileTransferService.get(TEST_FILE_ID));
+    }
+
+    @Test
+    void testUploadFile() throws ApiErrorResponseException, URIValidationException {
+        // Given
+        MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
+
+        // when
+        IdApi idApi = new IdApi("123");
+        when(fileTransferEndpoint.upload(any())).thenReturn(new ApiResponse<>(200, null, idApi));
+        var response = fileTransferService.upload(file);
+
+        // then
+        assertEquals(200, response.getStatusCode());
+        assertEquals("123", response.getData().getId());
+    }
+
+    @Test
+    void testUploadFileThrowsApiErrorResponseException() throws ApiErrorResponseException, URIValidationException {
+        // Given
+        MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
+
+        // when
+        IdApi idApi = new IdApi("123");
+        when(fileTransferEndpoint.upload(any())).thenThrow(mock(ApiErrorResponseException.class));
+
+        // then
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(file));
+    }
+
+    @Test
+    void testUploadFileThrowsIOExceptionException() throws IOException, URIValidationException {
+        // Given
+        MultipartFile mockFile = mock(MultipartFile.class);
+        // when
+        when(mockFile.getBytes()).thenThrow(IOException.class);
+        // then
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(mockFile));
     }
 }

@@ -8,6 +8,8 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
+import org.springframework.web.multipart.MultipartFile;
+import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
@@ -15,6 +17,8 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 
 import java.util.Map;
 import java.util.Optional;
+
+import java.io.IOException;
 
 @Service
 public class FileTransferService {
@@ -75,6 +79,14 @@ public class FileTransferService {
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
             return Optional.of(response.getData());
         } catch (ApiErrorResponseException | URIValidationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public ApiResponse<IdApi> upload(MultipartFile file) {
+        try {
+            var fileApi = new FileApi(file.getName(),file.getBytes(),"text/csv",(int)file.getSize(),".csv");
+            return fileTransferEndpoint.upload(fileApi);
+        } catch (URIValidationException | IOException e) {
             throw new RuntimeException(e);
         }
     }
