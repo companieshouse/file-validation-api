@@ -6,8 +6,8 @@ locals {
   service_name              = "file-validation-api"
   container_port            = "8080" # default Java port to match start script
   docker_repo               = "file-validation-api"
-  lb_listener_rule_priority = # check available rule numbers
-  lb_listener_paths         = [""]
+  lb_listener_rule_priority = 18
+  lb_listener_paths         = ["/file-validation-api/*"]
   healthcheck_path          = "/file-validation-api/healthcheck" #healthcheck path for file-validation-api service
   healthcheck_matcher       = "200"
   application_subnet_ids    = data.aws_subnets.application.ids
