@@ -7,18 +7,22 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
+import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
 import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
 import org.springframework.web.multipart.MultipartFile;
-import uk.gov.companieshouse.api.model.filetransfer.IdApi;
+import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
+import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
+import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Optional;
-
-import java.io.IOException;
 
 @Service
 public class FileTransferService {
@@ -26,12 +30,17 @@ public class FileTransferService {
     private final FileTransferEndpoint fileTransferEndpoint;
     private final RetryService retryService;
 
+    private final FileValidationRepository fileValidationRepository;
+
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 
     public FileTransferService( final FileTransferEndpoint fileTransferEndpoint,
-                                RetryService retryService ) {
+                                RetryService retryService,
+                                FileValidationRepository fileValidationRepository) {
         this.fileTransferEndpoint = fileTransferEndpoint;
         this.retryService = retryService;
+        this.fileValidationRepository = fileValidationRepository;
+
     }
 
     private Optional<FileDetailsApi> getFileDetails(final String id) {
@@ -82,12 +91,35 @@ public class FileTransferService {
             throw new RuntimeException(e);
         }
     }
-    public ApiResponse<IdApi> upload(MultipartFile file) {
+    public String upload(MultipartFile file) throws FileUploadException {
         try {
             var fileApi = new FileApi(file.getName(),file.getBytes(),"text/csv",(int)file.getSize(),".csv");
-            return fileTransferEndpoint.upload(fileApi);
-        } catch (URIValidationException | IOException e) {
-            throw new RuntimeException(e);
+            var uploadResponse =  fileTransferEndpoint.upload(fileApi);
+            FileValidation fileValidation = setFileToValidate(uploadResponse.getData().getId());
+            var insertedRecord = fileValidationRepository.insert(fileValidation);
+            return insertedRecord.getId();
+        } catch (Exception e) {
+            LOGGER.error("Error uploading the file : " + e.getMessage());
+            throw new FileUploadException(e.getMessage());
         }
+    }
+
+    private FileValidation setFileToValidate(String fileId) {
+        FileValidation fileValidation = new FileValidation();
+        fileValidation.setId(autoGenerateId());
+        fileValidation.setFileId(fileId);
+        fileValidation.setCreatedAt(LocalDateTime.now());
+        fileValidation.setCreatedBy("System");
+        fileValidation.setStatus(FileStatus.PENDING);
+        return fileValidation;
+    }
+
+    private String autoGenerateId() {
+        var random = new SecureRandom();
+        var values = new byte[4];
+        random.nextBytes(values);
+        var rand = String.format("%010d", random.nextInt(Integer.MAX_VALUE));
+        var time = String.format("%08d", Calendar.getInstance().getTimeInMillis() / 100000L);
+        return rand + time;
     }
 }
