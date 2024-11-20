@@ -18,4 +18,7 @@ public class Constants {
     public static final int MAX_TRADING_NAME_LENGTH = 160;
     public static final int MAX_FIRST_NAME_LENGTH = 50;
     public static final int MAX_LAST_NAME_LENGTH = 160;
+
+    public static final String UPLOAD_URI_PATTERN = "/file-validation-api/document";
+
 }
