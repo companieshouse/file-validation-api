@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.filevalidationservice.service;
 
-import com.mongodb.MongoException;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkException;
 import uk.gov.companieshouse.filevalidationservice.rest.S3UploadClient;
@@ -26,9 +25,6 @@ public class FileUploadService {
         } catch (SdkException e) {
             LOGGER.error(String.format("Failed to upload to S3 for file: %s with message %s", fileId, e.getMessage()));
             // TODO when db connection has been added implement logic to update the status to "Failed"
-            throw e;
-        } catch (MongoException e) {
-            LOGGER.error(String.format("Failed to update status in MongoDB for file: %s", fileId));
             throw e;
         }
     }
