@@ -24,11 +24,12 @@ public class FileUploadService {
             s3UploadClient.uploadFile(file, fileId, amlBodyName);
             // TODO when db connection has been added implement logic to update the status to "Processed Successfully"
         } catch (SdkException e) {
-            LOGGER.error(e.getMessage());
-            LOGGER.error("Failed to upload to S3 for file: " + fileId);
+            LOGGER.error(String.format("Failed to upload to S3 for file: %s with message %s", fileId, e.getMessage()));
             // TODO when db connection has been added implement logic to update the status to "Failed"
+            throw e;
         } catch (MongoException e) {
-            LOGGER.error("Failed to update status in MongoDB for file : " + fileId);
+            LOGGER.error(String.format("Failed to update status in MongoDB for file: %s", fileId));
+            throw e;
         }
     }
 }
