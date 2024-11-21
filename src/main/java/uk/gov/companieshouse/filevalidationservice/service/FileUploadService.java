@@ -2,6 +2,7 @@ package uk.gov.companieshouse.filevalidationservice.service;
 
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkException;
+import uk.gov.companieshouse.filevalidationservice.exception.S3UploadException;
 import uk.gov.companieshouse.filevalidationservice.rest.S3UploadClient;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
@@ -25,7 +26,7 @@ public class FileUploadService {
         } catch (SdkException e) {
             LOGGER.error(String.format("Failed to upload to S3 for file: %s with message %s", fileId, e.getMessage()));
             // TODO when db connection has been added implement logic to update the status to "Failed"
-            throw e;
+            throw new S3UploadException(String.format("Failed to upload to S3 for file: %s with message %s", fileId, e.getMessage()));
         }
     }
 }
