@@ -14,6 +14,7 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
+import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -59,6 +60,18 @@ class FileTransferServiceTest {
         assertThat(maybeFile.get().getFileName(), is(equalTo(TEST_FILE_NAME)));
         assertThat(maybeFile.get().getBody(), is(equalTo("Hello World!".getBytes())));
 
+    }
+
+    @Test
+    void testGetFileNotCleanThrowsException() throws ApiErrorResponseException, URIValidationException {
+        // given
+        FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.INFECTED, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
+        ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(200, null, fileDetailsApi);
+
+        // when
+        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
+        // then
+        assertThrows(DownloadAvStatusException.class, () -> fileTransferService.get(TEST_FILE_ID));
     }
 
     @Test

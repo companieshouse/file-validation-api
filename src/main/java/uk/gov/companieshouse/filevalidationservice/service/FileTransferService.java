@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
+import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
@@ -55,6 +57,8 @@ public class FileTransferService {
             // No file with id
             if (details.isEmpty()) {
                 return Optional.empty();
+            } else if (!details.get().getAvStatusApi().equals(AvStatusApi.CLEAN)) {
+                throw new DownloadAvStatusException(String.format("Av Status is not clean, current status is %s for file %s", details.get().getAvStatusApi(), id));
             }
 
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
