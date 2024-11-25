@@ -14,7 +14,6 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
-import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @ExtendWith( MockitoExtension.class )
 class FileTransferServiceTest {
@@ -39,33 +37,9 @@ class FileTransferServiceTest {
     @Mock
     private FileTransferEndpoint fileTransferEndpoint;
 
-    @Mock
-    private RetryService retryService;
-
     @InjectMocks
     private FileTransferService fileTransferService;
 
-    private void setupRetryStrategy() {
-        setupRetryStrategy(null);
-    }
-
-    private void setupRetryStrategy(Runnable onRetry) {
-        when(retryService.attempt(any())).thenAnswer(a -> {
-            for (int i = 0; i < 10; i++) {
-                try {
-                    return a.getArgument(0, Supplier.class).get();
-                } catch (RetryException e) {
-                    if (onRetry == null) {
-                        throw e;
-                    }
-
-                    onRetry.run();
-                }
-            }
-
-            return null;
-        });
-    }
     @Test
     void testGetFile() throws ApiErrorResponseException, URIValidationException {
         // given
@@ -74,8 +48,6 @@ class FileTransferServiceTest {
         FileApi fileApi = new FileApi(TEST_FILE_NAME, data, "mimeType", 100, "extension");
         ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(200, null, fileDetailsApi);
         ApiResponse<FileApi> downloadResponse = new ApiResponse<>(200, null, fileApi);
-
-        setupRetryStrategy();
 
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
@@ -94,8 +66,6 @@ class FileTransferServiceTest {
         // given
         ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(404, null, null);
 
-        setupRetryStrategy();
-
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         Optional<FileApi> maybeFile = fileTransferService.get(TEST_FILE_ID);
@@ -104,25 +74,10 @@ class FileTransferServiceTest {
         assertTrue(maybeFile.isEmpty());
     }
 
-    @Test
-    void testThrowRetryExceptionWhenFileNotScanned() throws ApiErrorResponseException, URIValidationException {
-        // given
-        FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.NOT_SCANNED, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
-        ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(200, null, fileDetailsApi);
-
-        setupRetryStrategy();
-
-        // when
-        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
-
-        // then
-        assertThrows(RetryException.class, () -> fileTransferService.get(TEST_FILE_ID));
-    }
 
     @Test
     void testThrowsRuntimeExceptionWhenAPIErrorGettingDetails() throws ApiErrorResponseException, URIValidationException {
         // given
-        setupRetryStrategy();
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenThrow(mock(ApiErrorResponseException.class));
         // then
@@ -134,8 +89,6 @@ class FileTransferServiceTest {
         // given
         FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.CLEAN, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
         ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(200, null, fileDetailsApi);
-
-        setupRetryStrategy();
 
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
@@ -166,7 +119,6 @@ class FileTransferServiceTest {
         MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
 
         // when
-        IdApi idApi = new IdApi("123");
         when(fileTransferEndpoint.upload(any())).thenThrow(mock(ApiErrorResponseException.class));
 
         // then
@@ -174,7 +126,7 @@ class FileTransferServiceTest {
     }
 
     @Test
-    void testUploadFileThrowsIOExceptionException() throws IOException, URIValidationException {
+    void testUploadFileThrowsIOExceptionException() throws IOException {
         // Given
         MultipartFile mockFile = mock(MultipartFile.class);
         // when
