@@ -6,11 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import uk.gov.companieshouse.api.model.ApiResponse;
-import uk.gov.companieshouse.api.model.filetransfer.FileApi;
-import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 
 import java.util.Optional;
@@ -23,7 +21,6 @@ import static org.mockito.Mockito.when;
 class CsvValidationControllerTest {
 
     private static final String FILE_ID = "file_id";
-    private static final String FILE_NAME = "file_name";
 
     @Mock
     FileTransferService fileTransferService;
@@ -35,7 +32,7 @@ class CsvValidationControllerTest {
     @Test
     void testDownloadFileReturnsFileAndStatus200() {
         // Given
-        FileApi downloadedFile = new FileApi(FILE_NAME, "Hello world".getBytes(), ".csv", 100, ".csv");
+        byte[] downloadedFile = "Hello world".getBytes();
 
         // When
         when(fileTransferService.get(FILE_ID)).thenReturn(Optional.of(downloadedFile));
@@ -68,17 +65,17 @@ class CsvValidationControllerTest {
     }
 
     @Test
-    void testUploadFileReturnsIdAndStatus200() {
+    void testUploadFileReturnsIdAndStatus201() {
         // Given
         MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
 
         // When
-        IdApi idApi = new IdApi("123");
-        when(fileTransferService.upload(any())).thenReturn(new ApiResponse<>(200, null, idApi));
+        String id = "123";
+        when(fileTransferService.upload(any())).thenReturn(new ResponseEntity<>(id, HttpStatus.CREATED));
         var response = csvValidationController.uploadFile(file);
 
         // Then
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals("123", response.getBody());
     }
 
@@ -88,8 +85,7 @@ class CsvValidationControllerTest {
         MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
 
         // When
-        IdApi idApi = new IdApi("");
-        when(fileTransferService.upload(any())).thenReturn(new ApiResponse<>(500, null, idApi));
+        when(fileTransferService.upload(any())).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
         var response = csvValidationController.uploadFile(file);
 
         // Then

@@ -3,11 +3,11 @@ package uk.gov.companieshouse.filevalidationservice.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.companieshouse.api.model.ApiResponse;
-import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import org.springframework.web.multipart.MultipartFile;
-import uk.gov.companieshouse.api.model.filetransfer.IdApi;
+
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
+
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -25,7 +25,7 @@ public class CsvValidationController {
     @GetMapping("/document/{document_id}")
     public ResponseEntity<?> downloadFile(@PathVariable("document_id") String id) {
         try {
-            Optional<FileApi> downloadedFile = fileTransferService.get(id);
+            Optional<byte[]> downloadedFile = fileTransferService.get(id);
 
             if(downloadedFile.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -38,12 +38,12 @@ public class CsvValidationController {
 
     @PostMapping("/document")
     public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file){
-        if (file.isEmpty() || !file.getContentType().equals("text/csv")){
+        if (file.isEmpty() || !Objects.equals(file.getContentType(), "text/csv")){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload a valid CSV file.");
         }
-        ApiResponse<IdApi> id = fileTransferService.upload(file);
-        if(HttpStatus.OK.value() == id.getStatusCode()){
-            return ResponseEntity.status(id.getStatusCode()).body(id.getData().getId());
+        ResponseEntity<String> id = fileTransferService.upload(file);
+        if(HttpStatus.CREATED == id.getStatusCode()){
+            return ResponseEntity.status(id.getStatusCode()).body(id.getBody());
         }else{
             return ResponseEntity.status(id.getStatusCode()).body("");
         }
