@@ -5,14 +5,21 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.ResponseErrorHandler;
 
 @ExtendWith( MockitoExtension.class )
 @Tag( "unit-test" )
 class ApiClientConfigTest {
 
     @Test
-    void getInternalApiClientReturnsInternalApiClient(){
-        Assertions.assertNotNull( new ApiClientConfig().getInternalApiClient() );
+    void testGetResponseErrorHandler(){
+        Assertions.assertNotNull( new ApiClientConfig().getResponseErrorHandler() );
+    }
+
+    @Test
+    void testGetRestTemplate(){
+        ResponseErrorHandler handler = new ApiClientConfig().getResponseErrorHandler();
+        Assertions.assertNotNull( new ApiClientConfig().getRestTemplate(handler) );
     }
 
 }
