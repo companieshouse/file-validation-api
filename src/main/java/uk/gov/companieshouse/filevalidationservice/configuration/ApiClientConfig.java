@@ -1,20 +1,25 @@
 package uk.gov.companieshouse.filevalidationservice.configuration;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class ApiClientConfig {
 
-    @Value( "${chs.internal.api.key}" )
-    private String internalApiKey;
+    @Bean
+    ResponseErrorHandler getResponseErrorHandler() {
+        return new DefaultResponseErrorHandler();
+    }
 
     @Bean
-    public InternalApiClient getInternalApiClient(){
-        return new InternalApiClient( new ApiKeyHttpClient( internalApiKey ) );
+    RestTemplate getRestTemplate(final ResponseErrorHandler handler) {
+        final RestTemplate template = new RestTemplateBuilder().build();
+        template.setErrorHandler(handler);
+        return template;
     }
 
 }
