@@ -34,7 +34,6 @@ public class FileTransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 
     public FileTransferService(final FileTransferEndpoint fileTransferEndpoint,
-                                RetryService retryService,
                                 FileValidationRepository fileValidationRepository) {
         this.fileTransferEndpoint = fileTransferEndpoint;
         this.fileValidationRepository = fileValidationRepository;
