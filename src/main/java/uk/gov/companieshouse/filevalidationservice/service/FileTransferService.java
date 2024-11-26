@@ -7,9 +7,9 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
-import uk.gov.companieshouse.filevalidationservice.exception.RetryException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
+import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
@@ -24,14 +24,11 @@ import java.io.IOException;
 public class FileTransferService {
 
     private final FileTransferEndpoint fileTransferEndpoint;
-    private final RetryService retryService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 
-    public FileTransferService( final FileTransferEndpoint fileTransferEndpoint,
-                                RetryService retryService ) {
+    public FileTransferService(final FileTransferEndpoint fileTransferEndpoint) {
         this.fileTransferEndpoint = fileTransferEndpoint;
-        this.retryService = retryService;
     }
 
     private Optional<FileDetailsApi> getFileDetails(final String id) {
@@ -54,28 +51,16 @@ public class FileTransferService {
     }
 
     public Optional<FileApi> get(String id) {
-        Optional<FileDetailsApi> details = retryService.attempt(() -> {
-            Optional<FileDetailsApi> maybeFileDetails;
-            maybeFileDetails = getFileDetails(id);
-            var stillAwaitingScan = maybeFileDetails
-                    .map(fileDetailsApi -> fileDetailsApi.getAvStatusApi().equals(AvStatusApi.NOT_SCANNED))
-                    .orElse(false);
+        try{
+            Optional<FileDetailsApi> details = getFileDetails(id);
 
-            LOGGER.debugContext(id, "File still awaiting scan. Retrying.", null);
-
-            if (stillAwaitingScan) {
-                // AvScan has still not been completed. Attempt to retry
-                throw new RetryException();
+            // No file with id
+            if (details.isEmpty()) {
+                return Optional.empty();
+            } else if (!details.get().getAvStatusApi().equals(AvStatusApi.CLEAN)) {
+                throw new DownloadAvStatusException(String.format("Av Status is not clean, current status is %s for file %s", details.get().getAvStatusApi(), id));
             }
 
-            return maybeFileDetails;
-        });
-
-        // No file with id
-        if (details.isEmpty()) {
-            return Optional.empty();
-        }
-        try{
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
             return Optional.of(response.getData());
         } catch (ApiErrorResponseException | URIValidationException e) {
