@@ -7,6 +7,7 @@ import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.parser.CsvProcessor;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
+import uk.gov.companieshouse.filevalidationservice.rest.S3UploadClient;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -21,14 +22,15 @@ public class ValidationScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 
     FileValidationRepository fileValidationRepository;
-
     private final FileTransferService fileTransferService;
-
+    private final S3UploadClient s3UploadClient;
 
     public ValidationScheduler(FileTransferService fileTransferService,
-                               FileValidationRepository fileValidationRepository) {
+                               FileValidationRepository fileValidationRepository,
+                               S3UploadClient s3UploadClient) {
         this.fileTransferService = fileTransferService;
         this.fileValidationRepository = fileValidationRepository;
+        this.s3UploadClient = s3UploadClient;
     }
 
     @Scheduled(cron = "0 */2 * * * *")
@@ -46,9 +48,15 @@ public class ValidationScheduler {
                     boolean isValidFile = csvProcessor.parseRecords();
                     if(isValidFile){
                         //upload to chips S3
+                        s3UploadClient.uploadFile(downloadedFile.get().getBody(), recordToProcess.getFileName(),
+                                recordToProcess.getToLocation());
                         fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
-                    }
+                    }else {
+                        s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
+                                recordToProcess.getToLocation());
                         fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
+
+                    }
                 } catch (IOException e) {
                         throw new RuntimeException(e);
                 }
