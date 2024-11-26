@@ -17,7 +17,7 @@ public class FileValidation {
     private String toLocation;
     private String createdBy;
     private LocalDateTime createdAt;
-    private FileStatus Status;
+    private String status;
 
     public String getId() {
         return id;
@@ -75,11 +75,11 @@ public class FileValidation {
         this.createdAt = createdAt;
     }
 
-    public FileStatus getStatus() {
-        return Status;
+    public String getStatus() {
+        return status;
     }
 
-    public void setStatus(FileStatus status) {
-        Status = status;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

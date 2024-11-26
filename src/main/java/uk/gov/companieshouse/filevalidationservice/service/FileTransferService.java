@@ -110,7 +110,7 @@ public class FileTransferService {
         fileValidation.setFileId(fileId);
         fileValidation.setCreatedAt(LocalDateTime.now());
         fileValidation.setCreatedBy("System");
-        fileValidation.setStatus(FileStatus.PENDING);
+        fileValidation.setStatus(FileStatus.PENDING.getLabel());
         return fileValidation;
     }
 
