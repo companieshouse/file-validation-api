@@ -15,6 +15,8 @@ import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
+import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
+import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,6 +39,9 @@ class FileTransferServiceTest {
 
     @Mock
     private FileTransferEndpoint fileTransferEndpoint;
+
+    @Mock
+    private FileValidationRepository fileValidationRepository;
 
     @InjectMocks
     private FileTransferService fileTransferService;
@@ -118,12 +123,15 @@ class FileTransferServiceTest {
 
         // when
         IdApi idApi = new IdApi("123");
+        var fileValidationRecord = new FileValidation();
+        fileValidationRecord.setId("084905471517321155");
+        fileValidationRecord.setFileId("93c1a3f1-6c8f-4dbd-973d-d7c42b1bb525");
         when(fileTransferEndpoint.upload(any())).thenReturn(new ApiResponse<>(200, null, idApi));
+        when(fileValidationRepository.insert((FileValidation) any())).thenReturn(fileValidationRecord);
         var response = fileTransferService.upload(file);
 
         // then
-        assertEquals(200, response.getStatusCode());
-        assertEquals("123", response.getData().getId());
+        assertEquals("084905471517321155", response);
     }
 
     @Test
