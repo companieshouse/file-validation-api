@@ -24,13 +24,16 @@ public class ValidationScheduler {
     FileValidationRepository fileValidationRepository;
     private final FileTransferService fileTransferService;
     private final S3UploadClient s3UploadClient;
+    private final CsvProcessor csvProcessor;
 
     public ValidationScheduler(FileTransferService fileTransferService,
                                FileValidationRepository fileValidationRepository,
-                               S3UploadClient s3UploadClient) {
+                               S3UploadClient s3UploadClient,
+                               CsvProcessor csvProcessor) {
         this.fileTransferService = fileTransferService;
         this.fileValidationRepository = fileValidationRepository;
         this.s3UploadClient = s3UploadClient;
+        this.csvProcessor = csvProcessor;
     }
 
     @Scheduled(cron = "0 */2 * * * *")
@@ -44,11 +47,11 @@ public class ValidationScheduler {
                 try {
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
                     Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
-                    CsvProcessor csvProcessor = new CsvProcessor(downloadedFile.get().getBody());
-                    boolean isValidFile = csvProcessor.parseRecords();
+                    boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
                     if(isValidFile){
                         //upload to chips S3
-                        s3UploadClient.uploadFile(downloadedFile.get().getBody(), recordToProcess.getFileName(),
+                        s3UploadClient.uploadFile(downloadedFile.get().getBody(),
+                                recordToProcess.getFileName(),
                                 recordToProcess.getToLocation());
                         fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
                     }else {
