@@ -12,7 +12,6 @@ import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -36,37 +35,30 @@ public class ValidationScheduler {
         this.csvProcessor = csvProcessor;
     }
 
-    @Scheduled(cron = "0 */2 * * * *")
-    public void cronJobSch() {
+    @Scheduled(cron = "${amlData.fileValidation.cron}")
+    public void processFiles() {
         LOGGER.info("Scheduler started at : "+ LocalDateTime.now());
         try {
             List<FileValidation> recordsToProcess = fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel());
             LOGGER.info("Total number of files to process : "+ recordsToProcess.size());
             recordsToProcess.forEach(recordToProcess -> {
                 LOGGER.info("Processing record with id: "+ recordToProcess.getId());
-                try {
-                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
-                    Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
-                    boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
-                    if(isValidFile){
-                        //upload to chips S3
-                        s3UploadClient.uploadFile(downloadedFile.get().getBody(),
-                                recordToProcess.getFileName(),
-                                recordToProcess.getToLocation());
-                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
-                    }else {
-                        s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
-                                recordToProcess.getToLocation());
-                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
-
-                    }
-                } catch (IOException e) {
-                        throw new RuntimeException(e);
+                fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
+                Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
+                boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
+                if(isValidFile){
+                    s3UploadClient.uploadFile(downloadedFile.get().getBody(),
+                            recordToProcess.getFileName(),
+                            recordToProcess.getToLocation());
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
+                }else {
+                    s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
+                            recordToProcess.getToLocation());
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
                 }
             });
-
         }catch (Exception e){
-            LOGGER.error("Error : "+e.getMessage());
+            LOGGER.error("Error while  running scheduler: "+e.getMessage());
         }
         LOGGER.info("Scheduler finished at : "+ LocalDateTime.now());
     }

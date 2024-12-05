@@ -28,7 +28,7 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_
 public class CsvProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 
-    public boolean parseRecords(byte[] bytesToParse) throws IOException {
+    public boolean parseRecords(byte[] bytesToParse) {
         boolean isFileValid = true;
         int currentRow = 0;
         try (Reader reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
@@ -62,6 +62,9 @@ public class CsvProcessor {
             isFileValid = false;
         } catch (CSVDataValidationException ex) {
             LOGGER.error("Data validation exception: " + ex.getMessage() + " at row number " + currentRow);
+            isFileValid = false;
+        } catch (IOException e) {
+            LOGGER.error("Data validation reading the file: " + e.getMessage());
             isFileValid = false;
         }
         return isFileValid;

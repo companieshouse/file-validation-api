@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.filevalidationservice.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,8 +24,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ValidationSchedulerTest {
 
-    private final static String TEST_FILE_NAME = "test.csv";
-
     @Mock
     private FileTransferService fileTransferService;
     @Mock
@@ -36,25 +35,28 @@ class ValidationSchedulerTest {
     @InjectMocks
     private ValidationScheduler scheduler;
 
+    FileApi fileApi;
+    private final static String TEST_FILE_NAME = "test.csv";
 
+    @BeforeEach
+    void setUp() {
+        var data = "Hello World!".getBytes();
+        fileApi = new FileApi(TEST_FILE_NAME, data, "mimeType", 100, "extension");
+    }
     @Test
     void testNoPendingFiles() {
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.emptyList());
 
-        scheduler.cronJobSch();
+        scheduler.processFiles();
 
         verify(fileValidationRepository).findByStatus(FileStatus.PENDING.getLabel());
         verifyNoInteractions(fileTransferService, s3UploadClient);
     }
 
     @Test
-    void testSuccessfulFileProcessing() throws IOException {
+    void testSuccessfulFileProcessing() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", "s3://location");
-
-
-        var data = "Hello World!".getBytes();
-        FileApi fileApi = new FileApi(TEST_FILE_NAME, data, "mimeType", 100, "extension");
 
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.singletonList(file));
@@ -62,25 +64,26 @@ class ValidationSchedulerTest {
                 .thenReturn(Optional.of(fileApi));
         when(csvProcessor.parseRecords(any()))
                 .thenReturn(true);
-        doNothing().when(s3UploadClient).uploadFile(data, file.getFileName(), file.getFromLocation());
-        doNothing().when(s3UploadClient).uploadFileOnError(data, file.getFileName(), file.getFromLocation());
+        doNothing().when(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
 
-        scheduler.cronJobSch();
+        scheduler.processFiles();
 
         verifySuccessfulProcessing(file, fileApi);
     }
 
     @Test
-    void testInvalidFileProcessing() throws IOException {
+    void testInvalidFileProcessing() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", "s3://location");
-        FileApi fileApi = createFileApi("invalid");
 
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
+        when(csvProcessor.parseRecords(any()))
+                .thenReturn(false);
+        doNothing().when(s3UploadClient).uploadFileOnError(fileApi.getBody(), file.getFileName(), file.getToLocation());
 
-        scheduler.cronJobSch();
+        scheduler.processFiles();
 
         verifyErrorProcessing(file, fileApi);
     }
@@ -94,7 +97,7 @@ class ValidationSchedulerTest {
         when(fileTransferService.get(anyString()))
                 .thenThrow(new RuntimeException("Transfer failed"));
 
-        scheduler.cronJobSch();
+        scheduler.processFiles();
 
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
         verifyNoMoreInteractions(s3UploadClient);
@@ -109,15 +112,10 @@ class ValidationSchedulerTest {
         return file;
     }
 
-    private FileApi createFileApi(String content) {
-        FileApi fileApi = new FileApi();
-        fileApi.setBody(content.getBytes());
-        return fileApi;
-    }
 
     private void verifySuccessfulProcessing(FileValidation file, FileApi fileApi) {
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
-//        verify(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
+        verify(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.COMPLETED.getLabel());
     }
 
