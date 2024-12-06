@@ -26,4 +26,11 @@ public class S3UploadClient {
                 .key(amlBodyName + "/" + documentId)
                 .build(), RequestBody.fromBytes(document));
     }
+
+    public void uploadFileOnError(byte[] document, String documentId, String amlBodyName) {
+        s3.putObject(PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(String.format("%s/error/%s", amlBodyName, documentId))
+                .build(), RequestBody.fromBytes(document));
+    }
 }

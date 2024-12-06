@@ -27,26 +27,20 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_
 
 public class CsvProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
-    private final Reader reader;
 
-
-    public CsvProcessor( byte[] bytesToParse) {
-        ByteArrayInputStream decodedBase64AsStream = new ByteArrayInputStream(bytesToParse);
-        reader = new InputStreamReader(decodedBase64AsStream);
-    }
-
-    public boolean parseRecords() throws IOException {
+    public boolean parseRecords(byte[] bytesToParse) {
         boolean isFileValid = true;
         int currentRow = 0;
-        Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
-        Iterator<CSVRecord> it = records.iterator();
+        try (Reader reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
 
-        try {
-            if (isDataAfterHeaders(it) ) {
-                currentRow ++;
-                while (it.hasNext()){
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
+            Iterator<CSVRecord> it = records.iterator();
+
+            if (isDataAfterHeaders(it)) {
+                currentRow++;
+                while (it.hasNext()) {
                     CSVRecord record = it.next();
-                    currentRow ++;
+                    currentRow++;
                     if (!NUMBER_OF_COLUMNS.equals(record.size())) {
                         LOGGER.error("Incorrect number of columns");
                         return false;
@@ -62,14 +56,16 @@ public class CsvProcessor {
             } else {
                 isFileValid = false;
             }
+
         } catch (IllegalStateException ex) {
-            LOGGER.error("Error parsing, could be corrupt CSV, at record number "  + currentRow + " " + ex);
+            LOGGER.error("Error parsing, could be corrupt CSV, at record number " + currentRow + " " + ex);
             isFileValid = false;
         } catch (CSVDataValidationException ex) {
             LOGGER.error("Data validation exception: " + ex.getMessage() + " at row number " + currentRow);
             isFileValid = false;
-        } finally {
-            reader.close();
+        } catch (IOException e) {
+            LOGGER.error("Data validation reading the file: " + e.getMessage());
+            isFileValid = false;
         }
         return isFileValid;
     }
