@@ -42,23 +42,29 @@ public class ValidationScheduler {
             List<FileValidation> recordsToProcess = fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel());
             LOGGER.info("Total number of files to process : "+ recordsToProcess.size());
             recordsToProcess.forEach(recordToProcess -> {
-                LOGGER.info("Processing record with id: "+ recordToProcess.getId());
-                fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
-                Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
-                boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
-                if(isValidFile){
-                    s3UploadClient.uploadFile(downloadedFile.get().getBody(),
-                            recordToProcess.getFileName(),
-                            recordToProcess.getToLocation());
-                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
-                }else {
-                    s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
-                            recordToProcess.getToLocation());
+                try {
+                    LOGGER.info("Processing record with id: "+ recordToProcess.getId());
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
+                    Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
+                    boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
+                    if(isValidFile){
+                        s3UploadClient.uploadFile(downloadedFile.get().getBody(),
+                                recordToProcess.getFileName(),
+                                recordToProcess.getToLocation());
+                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
+                    }else {
+                        s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
+                                recordToProcess.getToLocation());
+                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
+                    }
+                } catch (Exception e) {
+                    LOGGER.error(String.format("Error while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getFileId()));
+                    // TODO: Update the status' when upload and download fail to allow the files to be retried at a later date
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
                 }
             });
         }catch (Exception e){
-            LOGGER.error("Error while  running scheduler: "+e.getMessage());
+            LOGGER.error(String.format("Error getting records to process %s", e.getMessage()));
         }
         LOGGER.info("Scheduler finished at : "+ LocalDateTime.now());
     }

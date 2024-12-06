@@ -13,7 +13,7 @@ import uk.gov.companieshouse.filevalidationservice.parser.CsvProcessor;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.S3UploadClient;
 
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -37,6 +37,7 @@ class ValidationSchedulerTest {
 
     FileApi fileApi;
     private final static String TEST_FILE_NAME = "test.csv";
+    private final static String FILE_LOCATION = "s3://location";
 
     @BeforeEach
     void setUp() {
@@ -56,7 +57,7 @@ class ValidationSchedulerTest {
 
     @Test
     void testSuccessfulFileProcessing() {
-        FileValidation file = createFileValidation("1", "file1", "test.csv", "s3://location");
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.singletonList(file));
@@ -72,8 +73,30 @@ class ValidationSchedulerTest {
     }
 
     @Test
+    void testFirstFileErrorDownloadingSecondFileSuccessfulProcessing() {
+        FileValidation file1 = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
+        FileValidation file2 = createFileValidation("2", "file2", "test2.csv", FILE_LOCATION);
+
+
+        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+                .thenReturn(Arrays.asList(file1, file2));
+        when(fileTransferService.get(file1.getFileId()))
+                .thenThrow(RuntimeException.class);
+        when(fileTransferService.get(file2.getFileId()))
+                .thenReturn(Optional.of(fileApi));
+        when(csvProcessor.parseRecords(any()))
+                .thenReturn(true);
+        doNothing().when(s3UploadClient).uploadFile(fileApi.getBody(), file2.getFileName(), file2.getToLocation());
+
+        scheduler.processFiles();
+
+        verify(fileValidationRepository).updateStatusById(file1.getId(), FileStatus.ERROR.getLabel());
+        verifySuccessfulProcessing(file2, fileApi);
+    }
+
+    @Test
     void testInvalidFileProcessing() {
-        FileValidation file = createFileValidation("1", "file1", "test.csv", "s3://location");
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.singletonList(file));
@@ -90,7 +113,7 @@ class ValidationSchedulerTest {
 
     @Test
     void testFileTransferServiceError() {
-        FileValidation file = createFileValidation("1", "file1", "test.csv", "s3://location");
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.singletonList(file));
