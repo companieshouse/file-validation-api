@@ -14,7 +14,7 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
-import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
+import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
@@ -76,7 +76,7 @@ class FileTransferServiceTest {
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         // then
-        assertThrows(DownloadAvStatusException.class, () -> fileTransferService.get(TEST_FILE_ID));
+        assertThrows(FileDownloadException.class, () -> fileTransferService.get(TEST_FILE_ID));
     }
 
     @Test
