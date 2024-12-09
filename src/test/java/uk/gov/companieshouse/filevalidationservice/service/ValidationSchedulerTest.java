@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
+import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
+import uk.gov.companieshouse.filevalidationservice.exception.S3UploadException;
 import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.parser.CsvProcessor;
@@ -81,7 +83,7 @@ class ValidationSchedulerTest {
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Arrays.asList(file1, file2));
         when(fileTransferService.get(file1.getFileId()))
-                .thenThrow(RuntimeException.class);
+                .thenThrow(FileDownloadException.class);
         when(fileTransferService.get(file2.getFileId()))
                 .thenReturn(Optional.of(fileApi));
         when(csvProcessor.parseRecords(any()))
@@ -90,7 +92,7 @@ class ValidationSchedulerTest {
 
         scheduler.processFiles();
 
-        verify(fileValidationRepository).updateStatusById(file1.getId(), FileStatus.ERROR.getLabel());
+        verify(fileValidationRepository).updateStatusById(file1.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
         verifySuccessfulProcessing(file2, fileApi);
     }
 
@@ -118,12 +120,30 @@ class ValidationSchedulerTest {
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(anyString()))
-                .thenThrow(new RuntimeException("Transfer failed"));
+                .thenThrow(new FileDownloadException("Error downloading"));
 
         scheduler.processFiles();
 
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
         verifyNoMoreInteractions(s3UploadClient);
+        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
+    }
+
+    @Test
+    void testFileUploadError() {
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
+
+        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+                .thenReturn(Collections.singletonList(file));
+        when(fileTransferService.get(file.getFileId()))
+                .thenReturn(Optional.of(fileApi));
+        when(csvProcessor.parseRecords(any()))
+                .thenReturn(true);
+        doThrow(S3UploadException.class).when(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
+
+        scheduler.processFiles();
+
+        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.UPLOAD_ERROR.getLabel());
     }
 
     private FileValidation createFileValidation(String id, String fileId, String fileName, String location) {
@@ -145,6 +165,6 @@ class ValidationSchedulerTest {
     private void verifyErrorProcessing(FileValidation file, FileApi fileApi) {
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
         verify(s3UploadClient).uploadFileOnError(fileApi.getBody(), file.getFileName(), file.getToLocation());
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.ERROR.getLabel());
+        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.VALIDATION_ERROR.getLabel());
     }
 }

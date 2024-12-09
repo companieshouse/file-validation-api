@@ -5,7 +5,9 @@ public enum FileStatus {
     COMPLETED("completed"),
     IN_PROGRESS("in-progress"),
 
-    ERROR("error");
+    DOWNLOAD_ERROR("download-error"),
+    UPLOAD_ERROR("upload-error"),
+    VALIDATION_ERROR("validation-error");
 
     public final String label;
 

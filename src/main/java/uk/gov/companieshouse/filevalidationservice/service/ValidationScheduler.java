@@ -3,6 +3,8 @@ package uk.gov.companieshouse.filevalidationservice.service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
+import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
+import uk.gov.companieshouse.filevalidationservice.exception.S3UploadException;
 import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.parser.CsvProcessor;
@@ -55,12 +57,16 @@ public class ValidationScheduler {
                     }else {
                         s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
                                 recordToProcess.getToLocation());
-                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
+                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.VALIDATION_ERROR.getLabel());
                     }
+                } catch (FileDownloadException e) {
+                    LOGGER.error(String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage()));
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
+                } catch (S3UploadException e) {
+                    LOGGER.error(String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage()));
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.UPLOAD_ERROR.getLabel());
                 } catch (Exception e) {
-                    LOGGER.error(String.format("Error while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getFileId()));
-                    // TODO: Update the status' when upload and download fail to allow the files to be retried at a later date
-                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.ERROR.getLabel());
+                    LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getFileId()));
                 }
             });
         }catch (Exception e){

@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
+import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
@@ -72,8 +73,8 @@ public class FileTransferService {
 
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
             return Optional.of(response.getData());
-        } catch (ApiErrorResponseException | URIValidationException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new FileDownloadException(e.getMessage());
         }
     }
     public String upload(MultipartFile file) throws FileUploadException {
