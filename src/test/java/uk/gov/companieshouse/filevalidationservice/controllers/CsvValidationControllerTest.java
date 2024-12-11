@@ -9,12 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
-import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
+import uk.gov.companieshouse.filevalidationservice.exception.BadRequestRuntimeException;
+import uk.gov.companieshouse.filevalidationservice.exception.InternalServerErrorRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -67,52 +68,57 @@ class CsvValidationControllerTest {
     }
 
     @Test
-    void testUploadFileReturnsIdAndStatus200() {
+    void testUploadFileReturnsIdAndStatus200(){
         // Given
         MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
+        String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
 
         // When
         String id = "123";
-        when(fileTransferService.upload(any())).thenReturn(id);
-        var response = csvValidationController.uploadFile(file);
+        when(fileTransferService.upload(any(),any())).thenReturn(id);
+        var response = csvValidationController.uploadFile(file, metaData);
 
         // Then
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(id, response.getBody());
+        assertEquals(id, response.getBody().getId());
     }
 
     @Test
-    void testUploadFileFails() {
+    void testUploadFileFails(){
         // Given
         MultipartFile file = new MockMultipartFile("abc", null, "text/csv", "Hello world".getBytes() );
-
-        // When
-        when(fileTransferService.upload(any())).thenThrow(new FileUploadException("ERROR"));
-        var response = csvValidationController.uploadFile(file);
-
-        // Then
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
+        when(fileTransferService.upload(any(),any())).thenThrow(new InternalServerErrorRuntimeException("ERROR uploading"));
+        Exception thrown = assertThrows(
+                InternalServerErrorRuntimeException.class,
+                () -> csvValidationController.uploadFile(file, metaData)
+        );
+        assertTrue(thrown.getMessage().contains("ERROR"));
     }
 
     @Test
     void testUploadEmptyFileReturnsStatus400() {
         // Given
-        MultipartFile file = new MockMultipartFile("abc","", "text/csv", new byte[0] );
+        MultipartFile file = new MockMultipartFile("abc","fileName", "text/csv", new byte[0] );
+        String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
 
-        var response = csvValidationController.uploadFile(file);
-
-        // Then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Exception thrown = assertThrows(
+                BadRequestRuntimeException.class,
+                () -> csvValidationController.uploadFile(file, metaData)
+        );
+        assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
     }
 
         @Test
-    void testUploadInvalidFileReturnsStatus400() {
+    void testUploadInvalidFileReturnsStatus400(){
         // Given
         MultipartFile file = new MockMultipartFile("abc", null, "", "Hello world".getBytes() );
+            String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
 
-        var response = csvValidationController.uploadFile(file);
-
-        // Then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            Exception thrown = assertThrows(
+                    BadRequestRuntimeException.class,
+                    () -> csvValidationController.uploadFile(file, metaData)
+            );
+            assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
     }
 }

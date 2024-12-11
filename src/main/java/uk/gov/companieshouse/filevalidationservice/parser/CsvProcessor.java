@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
@@ -25,6 +26,7 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_DATE_OF_BIRTH;
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
 
+@Component
 public class CsvProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 

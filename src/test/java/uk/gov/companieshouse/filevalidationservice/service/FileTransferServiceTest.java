@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
+import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
@@ -128,7 +129,7 @@ class FileTransferServiceTest {
         fileValidationRecord.setFileId("93c1a3f1-6c8f-4dbd-973d-d7c42b1bb525");
         when(fileTransferEndpoint.upload(any())).thenReturn(new ApiResponse<>(200, null, idApi));
         when(fileValidationRepository.insert((FileValidation) any())).thenReturn(fileValidationRecord);
-        var response = fileTransferService.upload(file);
+        var response = fileTransferService.upload(file, new FileMetaData("Test file", "HMRC", "S3:HMRC" ));
 
         // then
         assertEquals("084905471517321155", response);
@@ -143,16 +144,14 @@ class FileTransferServiceTest {
         when(fileTransferEndpoint.upload(any())).thenThrow(mock(ApiErrorResponseException.class));
 
         // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.upload(file));
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(file, new FileMetaData()));
     }
 
     @Test
     void testUploadFileThrowsIOExceptionException() throws IOException {
         // Given
         MultipartFile mockFile = mock(MultipartFile.class);
-        // when
-        when(mockFile.getBytes()).thenThrow(IOException.class);
         // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.upload(mockFile));
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(mockFile, new FileMetaData()));
     }
 }

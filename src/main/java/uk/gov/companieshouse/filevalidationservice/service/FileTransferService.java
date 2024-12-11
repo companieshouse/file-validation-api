@@ -11,6 +11,7 @@ import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadExcepti
 import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
+import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
@@ -77,11 +78,11 @@ public class FileTransferService {
             throw new FileDownloadException(e.getMessage());
         }
     }
-    public String upload(MultipartFile file) throws FileUploadException {
+    public String upload(MultipartFile file, FileMetaData fileMetaData) throws FileUploadException {
         try {
-            var fileApi = new FileApi(file.getName(),file.getBytes(),"text/csv",(int)file.getSize(),".csv");
+            var fileApi = new FileApi(fileMetaData.getFileName(),file.getBytes(),"text/csv",(int)file.getSize(),".csv");
             var uploadResponse =  fileTransferEndpoint.upload(fileApi);
-            FileValidation fileValidation = setFileToValidate(uploadResponse.getData().getId());
+            FileValidation fileValidation = setFileToValidate(uploadResponse.getData().getId(), fileMetaData);
             var insertedRecord = fileValidationRepository.insert(fileValidation);
             return insertedRecord.getId();
         } catch (Exception e) {
@@ -90,13 +91,16 @@ public class FileTransferService {
         }
     }
 
-    private FileValidation setFileToValidate(String fileId) {
+    private FileValidation setFileToValidate(String fileId,FileMetaData fileMetaData) {
         FileValidation fileValidation = new FileValidation();
         fileValidation.setId(autoGenerateId());
         fileValidation.setFileId(fileId);
         fileValidation.setCreatedAt(LocalDateTime.now());
         fileValidation.setCreatedBy("System");
         fileValidation.setStatus(FileStatus.PENDING.getLabel());
+        fileValidation.setFileName(fileMetaData.getFileName());
+        fileValidation.setFromLocation(fileMetaData.getFromLocation());
+        fileValidation.setToLocation(fileMetaData.getToLocation());
         return fileValidation;
     }
 
