@@ -102,8 +102,6 @@ class CsvValidationControllerTest {
         MultipartFile file = new MockMultipartFile("abc","fileName", "text/csv", new byte[0] );
         String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
 
-//        // When
-//        when(fileTransferService.upload(any(),any())).thenThrow(new InternalServerErrorRuntimeException("ERROR"));
         Exception thrown = assertThrows(
                 BadRequestRuntimeException.class,
                 () -> csvValidationController.uploadFile(file, metaData)
@@ -117,8 +115,6 @@ class CsvValidationControllerTest {
         MultipartFile file = new MockMultipartFile("abc", null, "", "Hello world".getBytes() );
             String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
 
-//        // When
-//        when(fileTransferService.upload(any(),any())).thenThrow(new InternalServerErrorRuntimeException("ERROR"));
             Exception thrown = assertThrows(
                     BadRequestRuntimeException.class,
                     () -> csvValidationController.uploadFile(file, metaData)
