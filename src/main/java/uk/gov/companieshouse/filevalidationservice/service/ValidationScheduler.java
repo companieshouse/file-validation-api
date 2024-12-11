@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.filevalidationservice.service;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
@@ -37,6 +38,11 @@ public class ValidationScheduler {
         this.csvProcessor = csvProcessor;
     }
 
+    @SchedulerLock(
+            name = "ValidationScheduler_processFiles",
+            lockAtLeastFor = "${amlData.fileValidation.scheduler.lock-at-least-for}", // Hold lock for at least XX minutes
+            lockAtMostFor = "${amlData.fileValidation.scheduler.lock-at-most-for}"  // Hold lock for maximum XX minutes
+    )
     @Scheduled(cron = "${amlData.fileValidation.cron}")
     public void processFiles() {
         LOGGER.info("Scheduler started at : "+ LocalDateTime.now());
