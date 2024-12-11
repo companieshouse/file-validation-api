@@ -79,7 +79,6 @@ class ValidationSchedulerTest {
         FileValidation file1 = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
         FileValidation file2 = createFileValidation("2", "file2", "test2.csv", FILE_LOCATION);
 
-
         when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
                 .thenReturn(Arrays.asList(file1, file2));
         when(fileTransferService.get(file1.getFileId()))
@@ -154,7 +153,6 @@ class ValidationSchedulerTest {
         file.setToLocation(location);
         return file;
     }
-
 
     private void verifySuccessfulProcessing(FileValidation file, FileApi fileApi) {
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
