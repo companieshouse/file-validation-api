@@ -146,6 +146,31 @@ class ValidationSchedulerTest {
         verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.UPLOAD_ERROR.getLabel());
     }
 
+    @Test
+    void testUnknownError() {
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
+
+        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+                .thenReturn(Collections.singletonList(file));
+        doThrow(RuntimeException.class).when(fileTransferService).get(file.getFileId());
+
+        scheduler.processFiles();
+
+        verifyNoInteractions(csvProcessor);
+        verifyNoMoreInteractions(s3UploadClient);
+    }
+
+    @Test
+    void testErrorGettingRecords() {
+        doThrow(RuntimeException.class).when(fileValidationRepository).findByStatus(FileStatus.PENDING.getLabel());
+
+        scheduler.processFiles();
+
+        verifyNoInteractions(fileTransferService);
+        verifyNoInteractions(csvProcessor);
+        verifyNoMoreInteractions(s3UploadClient);
+    }
+
     private FileValidation createFileValidation(String id, String fileId, String fileName, String location) {
         FileValidation file = new FileValidation();
         file.setId(id);
