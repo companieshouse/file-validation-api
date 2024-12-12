@@ -18,6 +18,7 @@ public class FileValidation {
     private String createdBy;
     private LocalDateTime createdAt;
     private String status;
+    private String errorMessage;
 
     public String getId() {
         return id;
@@ -81,5 +82,13 @@ public class FileValidation {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }
