@@ -36,7 +36,7 @@ public class CsvProcessor {
         this.fileValidationRepository = fileValidationRepository;
     }
 
-    public boolean parseRecords(byte[] bytesToParse, String FileId) {
+    public boolean parseRecords(byte[] bytesToParse, String fileId) {
         boolean isFileValid = true;
         int currentRow = 0;
         try (Reader reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
@@ -66,19 +66,19 @@ public class CsvProcessor {
             }
 
         } catch (IllegalStateException ex) {
-            String errorMessage = String.format("Error parsing, could be corrupt CSV, at record number %s,  %s", currentRow , ex.getMessage());
+            var errorMessage = String.format("Error parsing, could be corrupt CSV, at record number %s,  %s", currentRow , ex.getMessage());
             LOGGER.error(errorMessage);
-            fileValidationRepository.updateErrorMessageById(FileId, errorMessage);
+            fileValidationRepository.updateErrorMessageById(fileId, errorMessage);
             isFileValid = false;
         } catch (CSVDataValidationException ex) {
-            String errorMessage = String.format("Data validation exception: %s at row number %s", ex.getMessage(), currentRow);
+            var errorMessage = String.format("Data validation exception: %s at row number %s", ex.getMessage(), currentRow);
             LOGGER.error(errorMessage);
-            fileValidationRepository.updateErrorMessageById(FileId, errorMessage);
+            fileValidationRepository.updateErrorMessageById(fileId, errorMessage);
             isFileValid = false;
         } catch (IOException e) {
-            String errorMessage = String.format("Data validation reading the file: %s", e.getMessage());
+            var errorMessage = String.format("Data validation reading the file: %s", e.getMessage());
             LOGGER.error(errorMessage);
-            fileValidationRepository.updateErrorMessageById(FileId, errorMessage);
+            fileValidationRepository.updateErrorMessageById(fileId, errorMessage);
             isFileValid = false;
         }
         return isFileValid;

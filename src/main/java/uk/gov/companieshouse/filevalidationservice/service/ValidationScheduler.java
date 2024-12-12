@@ -67,12 +67,12 @@ public class ValidationScheduler {
                         fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.VALIDATION_ERROR.getLabel());
                     }
                 } catch (FileDownloadException e) {
-                    String errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    var errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);
                     fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
                 } catch (S3UploadException e) {
-                    String errorMessage = String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    var errorMessage = String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);
                     fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.UPLOAD_ERROR.getLabel());
