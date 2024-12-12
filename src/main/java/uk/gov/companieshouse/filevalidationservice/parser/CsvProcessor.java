@@ -11,6 +11,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
+import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
 import uk.gov.companieshouse.logging.Logger;
@@ -29,8 +30,13 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_
 @Component
 public class CsvProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
+    private final FileValidationRepository fileValidationRepository;
 
-    public boolean parseRecords(byte[] bytesToParse) {
+    public CsvProcessor(FileValidationRepository fileValidationRepository){
+        this.fileValidationRepository = fileValidationRepository;
+    }
+
+    public boolean parseRecords(byte[] bytesToParse, String FileId) {
         boolean isFileValid = true;
         int currentRow = 0;
         try (Reader reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
@@ -60,13 +66,19 @@ public class CsvProcessor {
             }
 
         } catch (IllegalStateException ex) {
-            LOGGER.error("Error parsing, could be corrupt CSV, at record number " + currentRow + " " + ex);
+            String errorMessage = String.format("Error parsing, could be corrupt CSV, at record number %s,  %s", currentRow , ex.getMessage());
+            LOGGER.error(errorMessage);
+            fileValidationRepository.updateErrorMessageById(FileId, errorMessage);
             isFileValid = false;
         } catch (CSVDataValidationException ex) {
-            LOGGER.error("Data validation exception: " + ex.getMessage() + " at row number " + currentRow);
+            String errorMessage = String.format("Data validation exception: %s at row number %s", ex.getMessage(), currentRow);
+            LOGGER.error(errorMessage);
+            fileValidationRepository.updateErrorMessageById(FileId, errorMessage);
             isFileValid = false;
         } catch (IOException e) {
-            LOGGER.error("Data validation reading the file: " + e.getMessage());
+            String errorMessage = String.format("Data validation reading the file: %s", e.getMessage());
+            LOGGER.error(errorMessage);
+            fileValidationRepository.updateErrorMessageById(FileId, errorMessage);
             isFileValid = false;
         }
         return isFileValid;

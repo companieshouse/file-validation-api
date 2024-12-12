@@ -65,7 +65,7 @@ class ValidationSchedulerTest {
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
-        when(csvProcessor.parseRecords(any()))
+        when(csvProcessor.parseRecords(any(), any()))
                 .thenReturn(true);
         doNothing().when(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
 
@@ -86,7 +86,7 @@ class ValidationSchedulerTest {
                 .thenThrow(FileDownloadException.class);
         when(fileTransferService.get(file2.getFileId()))
                 .thenReturn(Optional.of(fileApi));
-        when(csvProcessor.parseRecords(any()))
+        when(csvProcessor.parseRecords(any(), any()))
                 .thenReturn(true);
         doNothing().when(s3UploadClient).uploadFile(fileApi.getBody(), file2.getFileName(), file2.getToLocation());
 
@@ -104,7 +104,7 @@ class ValidationSchedulerTest {
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
-        when(csvProcessor.parseRecords(any()))
+        when(csvProcessor.parseRecords(any(), any()))
                 .thenReturn(false);
         doNothing().when(s3UploadClient).uploadFileOnError(fileApi.getBody(), file.getFileName(), file.getToLocation());
 
@@ -137,7 +137,7 @@ class ValidationSchedulerTest {
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
-        when(csvProcessor.parseRecords(any()))
+        when(csvProcessor.parseRecords(any(), any()))
                 .thenReturn(true);
         doThrow(S3UploadException.class).when(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
 

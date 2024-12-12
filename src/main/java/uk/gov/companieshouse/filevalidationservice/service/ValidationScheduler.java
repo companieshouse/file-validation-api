@@ -53,8 +53,9 @@ public class ValidationScheduler {
                 try {
                     LOGGER.info("Processing record with id: "+ recordToProcess.getId());
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
+                    fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), null);
                     Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
-                    boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
+                    boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody(), recordToProcess.getId());
                     if(isValidFile){
                         s3UploadClient.uploadFile(downloadedFile.get().getBody(),
                                 recordToProcess.getFileName(),
@@ -66,13 +67,17 @@ public class ValidationScheduler {
                         fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.VALIDATION_ERROR.getLabel());
                     }
                 } catch (FileDownloadException e) {
-                    LOGGER.error(String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage()));
+                    String errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    LOGGER.error(errorMessage);
+                    fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
                 } catch (S3UploadException e) {
-                    LOGGER.error(String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage()));
+                    String errorMessage = String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    LOGGER.error(errorMessage);
+                    fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.UPLOAD_ERROR.getLabel());
                 } catch (Exception e) {
-                    LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getFileId()));
+                    LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getId()));
                 }
             });
         }catch (Exception e){
