@@ -4,6 +4,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
+import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
 import uk.gov.companieshouse.filevalidationservice.exception.S3UploadException;
 import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
@@ -50,29 +51,35 @@ public class ValidationScheduler {
             List<FileValidation> recordsToProcess = fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel());
             LOGGER.info("Total number of files to process : "+ recordsToProcess.size());
             recordsToProcess.forEach(recordToProcess -> {
+                Optional<FileApi> downloadedFile = Optional.empty();
                 try {
-                    LOGGER.info("Processing record with id: "+ recordToProcess.getId());
+                    LOGGER.info("Processing record with id: " + recordToProcess.getId());
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel());
-                    Optional<FileApi> downloadedFile = fileTransferService.get(recordToProcess.getFileId());
-                    boolean isValidFile = csvProcessor.parseRecords(downloadedFile.get().getBody());
-                    if(isValidFile){
-                        s3UploadClient.uploadFile(downloadedFile.get().getBody(),
-                                recordToProcess.getFileName(),
-                                recordToProcess.getToLocation());
-                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
-                    }else {
-                        s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
-                                recordToProcess.getToLocation());
-                        fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.VALIDATION_ERROR.getLabel());
-                    }
+                    downloadedFile = fileTransferService.get(recordToProcess.getFileId());
+                    csvProcessor.parseRecords(downloadedFile.get().getBody());
+                    s3UploadClient.uploadFile(downloadedFile.get().getBody(),
+                            recordToProcess.getFileName(),
+                            recordToProcess.getToLocation());
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel());
                 } catch (FileDownloadException e) {
-                    LOGGER.error(String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage()));
+                    var errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    LOGGER.error(errorMessage);
+                    fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
                 } catch (S3UploadException e) {
-                    LOGGER.error(String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage()));
+                    var errorMessage = String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    LOGGER.error(errorMessage);
+                    fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.UPLOAD_ERROR.getLabel());
+                } catch (CSVDataValidationException e){
+                    var errorMessage = String.format("Failed to validate file: %s with message %s", recordToProcess.getId(), e.getMessage());
+                    LOGGER.error(errorMessage);
+                    fileValidationRepository.updateErrorMessageById(recordToProcess.getId(), errorMessage);
+                    fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.VALIDATION_ERROR.getLabel());
+                    s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
+                            recordToProcess.getToLocation());
                 } catch (Exception e) {
-                    LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getFileId()));
+                    LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getId()));
                 }
             });
         }catch (Exception e){
