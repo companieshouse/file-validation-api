@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.filevalidationservice.parser;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,16 +10,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
+import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 
 
 @ExtendWith(MockitoExtension.class)
 class CsvProcessorTest {
-
-    @Mock
-    private FileValidationRepository fileValidationRepository;
 
     @InjectMocks
     private CsvProcessor csvProcessor;
@@ -29,7 +25,7 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/emptyCsv.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -37,7 +33,7 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/tooFewHeaders.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -45,7 +41,7 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/onlyHeaders.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -53,7 +49,7 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/tooFewColumns.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -61,7 +57,7 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/tooManyColumns.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -69,7 +65,7 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/oneGoodRecord.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertTrue(csvProcessor.parseRecords(bytes, "1"));
+        assertDoesNotThrow(() -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -77,21 +73,21 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/noUniqueId.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithUniqueIdOver256CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/uniqueIdOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithRegisteredCompanyOver160CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/registeredCompanyNameOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
     @Test
@@ -99,35 +95,35 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/companyNumberOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithTradingNameOver160CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/tradingNameOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithFirstNameOver50CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/firstNameOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithLastNameOver160CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/lastNameOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithIncorrectDateFormatMustFailToParse() throws IOException {
         File file = new File("src/test/resources/incorrectDateFormat.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertFalse(csvProcessor.parseRecords(bytes, "1"));
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
 }
