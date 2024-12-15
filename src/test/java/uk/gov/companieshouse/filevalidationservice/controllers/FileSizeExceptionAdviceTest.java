@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.companieshouse.filevalidationservice.controllers.ControllerAdvice.FILE_VALIDATION_API;
 
 @ExtendWith(MockitoExtension.class)
-public class FileSizeExceptionAdviceTest {
+class FileSizeExceptionAdviceTest {
 
     @InjectMocks
     private FileSizeExceptionAdvice fileSizeExceptionAdvice;
