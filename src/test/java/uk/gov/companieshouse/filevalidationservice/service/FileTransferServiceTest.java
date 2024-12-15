@@ -144,7 +144,8 @@ class FileTransferServiceTest {
         when(fileTransferEndpoint.upload(any())).thenThrow(mock(ApiErrorResponseException.class));
 
         // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.upload(file, new FileMetaData()));
+        FileMetaData fileMetaData = new FileMetaData();
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(file, fileMetaData));
     }
 
     @Test
@@ -152,6 +153,8 @@ class FileTransferServiceTest {
         // Given
         MultipartFile mockFile = mock(MultipartFile.class);
         // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.upload(mockFile, new FileMetaData()));
+
+        FileMetaData fileMetaData = new FileMetaData();
+        assertThrows(RuntimeException.class, () -> fileTransferService.upload(mockFile, fileMetaData));
     }
 }

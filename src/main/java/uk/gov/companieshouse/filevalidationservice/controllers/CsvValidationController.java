@@ -54,8 +54,8 @@ public class CsvValidationController implements FileValidationInterface {
             if (file.isEmpty() || !file.getContentType().equals("text/csv")){
                 throw new BadRequestRuntimeException("Please upload a valid CSV file");
             }
-            ObjectMapper objectMapper = new ObjectMapper();
-            FileMetaData fileMetaData = objectMapper.readValue(metadata, FileMetaData.class);
+            var objectMapper = new ObjectMapper();
+            var fileMetaData = objectMapper.readValue(metadata, FileMetaData.class);
             String id = fileTransferService.upload(file, fileMetaData);
             return ResponseEntity.created(URI.create(Constants.UPLOAD_URI_PATTERN)).body(new FileUploadResponse().id(id));
         } catch (FileUploadException | JsonProcessingException e) {
