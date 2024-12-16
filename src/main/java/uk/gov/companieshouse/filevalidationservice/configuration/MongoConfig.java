@@ -25,9 +25,4 @@ public class MongoConfig {
         return () -> Optional.of( LocalDateTime.now() );
     }
 
-    // TODO: when we know which MongoDB repositories we need to interact with, we need to
-    // create the DataAccessObjects in the models package, and the create a package called
-    // uk.gov.companieshouse.filevalidationservice.repositories, and add MongoRepository's there there
-    // based on these DataAccessObjects
-
 }
