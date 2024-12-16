@@ -165,6 +165,12 @@
 			<artifactId>de.flapdoodle.embed.mongo.spring3x</artifactId>
 			<version>${flapdoodle.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>de.flapdoodle.reverse</groupId>
+					<artifactId>de.flapdoodle.reverse</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
