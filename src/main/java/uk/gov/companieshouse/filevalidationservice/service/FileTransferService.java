@@ -82,7 +82,7 @@ public class FileTransferService {
         try {
             var fileApi = new FileApi(fileMetaData.getFileName(),file.getBytes(),"text/csv",(int)file.getSize(),".csv");
             var uploadResponse =  fileTransferEndpoint.upload(fileApi);
-            FileValidation fileValidation = setFileToValidate(uploadResponse.getData().getId(), fileMetaData);
+            var fileValidation = setFileToValidate(uploadResponse.getData().getId(), fileMetaData);
             var insertedRecord = fileValidationRepository.insert(fileValidation);
             return insertedRecord.getId();
         } catch (Exception e) {

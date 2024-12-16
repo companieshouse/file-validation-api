@@ -10,6 +10,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.filevalidationservice.exception.BadRequestRuntimeException;
+import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
 import uk.gov.companieshouse.filevalidationservice.exception.InternalServerErrorRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 
@@ -109,8 +110,8 @@ class CsvValidationControllerTest {
         assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
     }
 
-        @Test
-    void testUploadInvalidFileReturnsStatus400(){
+    @Test
+    void testUploadInvalidFileContentReturnsStatus400(){
         // Given
         MultipartFile file = new MockMultipartFile("abc", null, "", "Hello world".getBytes() );
             String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
@@ -120,5 +121,19 @@ class CsvValidationControllerTest {
                     () -> csvValidationController.uploadFile(file, metaData)
             );
             assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
+    }
+
+    @Test
+    void testUploadInvalidFileReturnsStatus500(){
+        // Given
+        MultipartFile file = new MockMultipartFile("abc", "filename", "text/csv", "Hello world".getBytes() );
+        String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
+
+        when(fileTransferService.upload(any(),any())).thenThrow(new FileUploadException("Please upload a valid CSV file"));
+        Exception thrown = assertThrows(
+                InternalServerErrorRuntimeException.class,
+                () -> csvValidationController.uploadFile(file, metaData)
+        );
+        assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
     }
 }
