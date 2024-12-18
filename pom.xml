@@ -160,23 +160,6 @@
 			<version>${junit-jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>de.flapdoodle.embed</groupId>
-			<artifactId>de.flapdoodle.embed.mongo.spring3x</artifactId>
-			<version>${flapdoodle.version}</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>de.flapdoodle.reverse</groupId>
-					<artifactId>de.flapdoodle.reverse</artifactId>
-				</exclusion>
-		    </exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-			<version>5.9</version>
-		</dependency>
 	</dependencies>
 
 	<build>
