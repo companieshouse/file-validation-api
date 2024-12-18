@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.filevalidationservice.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +14,7 @@ import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.filevalidationservice.exception.BadRequestRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
 import uk.gov.companieshouse.filevalidationservice.exception.InternalServerErrorRuntimeException;
+import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 
 import java.util.Optional;
@@ -108,6 +111,20 @@ class CsvValidationControllerTest {
                 () -> csvValidationController.uploadFile(file, metaData)
         );
         assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
+    }
+
+    @Test
+    void testUploadIncorrectMetaDataReturnsStatus400() throws JsonProcessingException {
+        // Given
+        MultipartFile file = new MockMultipartFile("abc","fileName", "text/csv", "Hello world".getBytes() );
+        String metaData = "{\"fileName\":\"Test file\",\"toLocation\":\"S3:abc\"}";
+        var objectMapper = new ObjectMapper();
+        var fileMetaData = objectMapper.readValue(metaData, FileMetaData.class);
+        Exception thrown = assertThrows(
+                BadRequestRuntimeException.class,
+                () -> csvValidationController.uploadFile(file, metaData)
+        );
+        assertTrue(thrown.getMessage().contains("Please provide a valid metadata: " + fileMetaData));
     }
 
     @Test
