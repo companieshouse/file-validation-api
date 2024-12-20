@@ -15,6 +15,12 @@ public class S3UploadClient {
 
     private final String bucketName;
 
+    @Value("${aws.secret.access.key}")
+    private String secretKey;
+
+    @Value("${aws.access.key.id}")
+    private String accessKey;
+
 
     public S3UploadClient(S3Client that, @Value("${s3.bucket.name}") String bucketName){
         this.s3 = that;
@@ -22,6 +28,8 @@ public class S3UploadClient {
     }
 
     public void uploadFile(byte[] document, String documentId, String amlBodyName) {
+        System.out.println("Secret key is: " + secretKey);
+        System.out.println("Access key is: " + accessKey);
         try {
             s3.putObject(PutObjectRequest.builder()
                     .bucket(bucketName)
