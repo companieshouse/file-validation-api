@@ -7,13 +7,24 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import uk.gov.companieshouse.filevalidationservice.exception.S3UploadException;
+import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Component
 public class S3UploadClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
+
     private final S3Client s3;
 
     private final String bucketName;
+
+    @Value("${aws.secret.access.key}")
+    private String secretKey;
+
+    @Value("${aws.access.key.id}")
+    private String accessKey;
 
 
     public S3UploadClient(S3Client that, @Value("${s3.bucket.name}") String bucketName){
@@ -22,6 +33,8 @@ public class S3UploadClient {
     }
 
     public void uploadFile(byte[] document, String documentId, String amlBodyName) {
+        LOGGER.debug("Secret key is: " + secretKey);
+        LOGGER.debug("Access key is: " + accessKey);
         try {
             s3.putObject(PutObjectRequest.builder()
                     .bucket(bucketName)
