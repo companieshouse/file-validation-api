@@ -13,15 +13,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
 
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.NUMBER_OF_COLUMNS;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_UNIQUE_ID;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NAME;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NUMBER;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_TRADING_NAME;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_FIRST_NAME;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_LAST_NAME;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_DATE_OF_BIRTH;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.*;
 
 @Component
 public class CsvProcessor {
@@ -48,6 +40,12 @@ public class CsvProcessor {
                 CsvRecordValidator.validateFirstName(record.get(INDEX_OF_FIRST_NAME));
                 CsvRecordValidator.validateLastName(record.get(INDEX_OF_LAST_NAME));
                 CsvRecordValidator.validateDateOfBirth(record.get(INDEX_OF_DATE_OF_BIRTH));
+                CsvRecordValidator.validatePropertyNameOrNo(record.get(INDEX_OF_PROPERTY_NAME_OR_NO));
+                CsvRecordValidator.validateAddressLine1(record.get(INDEX_OF_ADDRESSLINE1));
+                CsvRecordValidator.validateAddressLine2(record.get(INDEX_OF_ADDRESSLINE2));
+                CsvRecordValidator.validateCityOrTown(record.get(INDEX_OF_CITY_OR_TOWN));
+                CsvRecordValidator.validatePostcode(record.get(INDEX_OF_POSTCODE));
+                CsvRecordValidator.validateCountry(record.get(INDEX_OF_COUNTRY));
             }
 
         } catch (IllegalStateException ex) {

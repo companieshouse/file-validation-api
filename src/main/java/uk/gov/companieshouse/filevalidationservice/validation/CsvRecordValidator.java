@@ -6,12 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_UNIQUE_ID_LENGTH;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COMPANY_NAME_LENGTH;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COMPANY_NUMBER_LENGTH;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_TRADING_NAME_LENGTH;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_FIRST_NAME_LENGTH;
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_LAST_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.*;
 
 public class CsvRecordValidator {
 
@@ -57,6 +52,42 @@ public class CsvRecordValidator {
             LocalDate.parse(dateOfBirth, formatter);
         } catch (DateTimeParseException e) {
             throw new CSVDataValidationException("Date of birth format is incorrect");
+        }
+    }
+
+    public static void validatePropertyNameOrNo(String propertyNameOrNo) {
+        if (propertyNameOrNo.length() > MAX_PROP_NAME_OR_NO_LENGTH) {
+            throw new CSVDataValidationException("Property Name or Number is over 200 characters long");
+        }
+    }
+
+    public static void validateAddressLine1(String addressLine1) {
+        if (addressLine1.length() > MAX_ADDRESSLINE1_LENGTH) {
+            throw new CSVDataValidationException("AddressLine1 is over 50 characters long");
+        }
+    }
+
+    public static void validateAddressLine2(String addressLine2) {
+        if (addressLine2.length() > MAX_ADDRESSLINE2_LENGTH) {
+            throw new CSVDataValidationException("AddressLine2 is over 50 characters long");
+        }
+    }
+
+    public static void validateCityOrTown(String cityOrTown) {
+        if (cityOrTown.length() > MAX_CITY_OR_TOWN_LENGTH) {
+            throw new CSVDataValidationException("City or Town is over 50 characters long");
+        }
+    }
+
+    public static void validatePostcode(String postCode) {
+        if (postCode.length() > MAX_POSTCODE_LENGTH) {
+            throw new CSVDataValidationException("Postcode is over 20 characters long");
+        }
+    }
+
+    public static void validateCountry(String country) {
+        if (country.length() > MAX_COUNTRY_LENGTH) {
+            throw new CSVDataValidationException("Country is over 50 characters long");
         }
     }
 }
