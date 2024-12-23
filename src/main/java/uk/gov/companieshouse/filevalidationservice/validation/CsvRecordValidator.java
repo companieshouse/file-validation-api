@@ -59,11 +59,13 @@ public class CsvRecordValidator {
     }
 
     public static void validateDateOfBirth(String dateOfBirth) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-            LocalDate.parse(dateOfBirth, formatter);
-        } catch (DateTimeParseException e) {
-            throw new CSVDataValidationException("Date of birth format is incorrect");
+        if(!dateOfBirth.isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+                LocalDate.parse(dateOfBirth, formatter);
+            } catch (DateTimeParseException e) {
+                throw new CSVDataValidationException("Date of birth format is incorrect");
+            }
         }
     }
 
