@@ -125,5 +125,49 @@ class CsvProcessorTest {
 
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
+    @Test
+    void csvRecordWithPropertyNameOrNoOver200CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/propertyNameOrNoOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
 
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+
+    @Test
+    void csvRecordWithAddressLine1Over50CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/addressLine1OverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+
+    @Test
+    void csvRecordWithAddressLine2Over50CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/addressLine2OverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+
+    @Test
+    void csvRecordWithCityOrTownOver50CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/cityOrTownOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+    @Test
+    void csvRecordWithPostcodeOver20CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/postCodeOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+    @Test
+    void csvRecordWithCountryOver50CharactersMustFailToParse() throws IOException {
+        File file = new File("src/test/resources/countryOverCharLimit.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
 }
