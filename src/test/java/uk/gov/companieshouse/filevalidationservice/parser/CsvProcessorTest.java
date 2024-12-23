@@ -170,4 +170,12 @@ class CsvProcessorTest {
 
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
+
+    @Test
+    void TwoGoodRecordMustParse() throws IOException {
+        File file = new File("src/test/resources/good_multiple_records.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertDoesNotThrow(() -> csvProcessor.parseRecords(bytes));
+    }
 }
