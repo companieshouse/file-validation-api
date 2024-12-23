@@ -3,7 +3,7 @@ package uk.gov.companieshouse.filevalidationservice.utils;
 import java.util.List;
 
 public class Constants {
-    public static final List<String> VALID_HEADERS = List.of("UniqueID", "Registered Company Name", "Company Number", "Trading Name", "First Name", "Last Name", "Date of Birth");
+    public static final List<String> VALID_HEADERS = List.of("Unique ID", "Registered Company Name", "Company Number", "Trading Name", "First Name", "Last Name", "Date of Birth");
     public static final Integer NUMBER_OF_COLUMNS = 7 ;
     public static final int INDEX_OF_UNIQUE_ID = 0;
     public static final int INDEX_OF_COMPANY_NAME = 1;
