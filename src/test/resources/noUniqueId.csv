@@ -1,2 +1,2 @@
-Unique ID,Registered Company Name,Company Number,Trading Name,First Name,Last Name,Date of Birth
-,,,JS Accounting,John,Smith,29091970
+Unique ID,Registered Company Name,Company Number,Trading Name,First Name,Last Name,Date of Birth,Property Name or Number,Address Line 1,Address Line 2,City or Town,Postcode,Country
+,,,JS Accounting,John,Smith,29091970,,,,,,,
