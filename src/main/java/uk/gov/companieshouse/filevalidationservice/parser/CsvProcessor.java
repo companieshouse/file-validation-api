@@ -13,7 +13,23 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
 
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.*;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_UNIQUE_ID;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.NUMBER_OF_COLUMNS;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NUMBER;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_TRADING_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_FIRST_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_LAST_NAME;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_DATE_OF_BIRTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_PROPERTY_NAME_OR_NO;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_ADDRESSLINE1;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_ADDRESSLINE2;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_CITY_OR_TOWN;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_POSTCODE;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COUNTRY;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
+
+
 
 @Component
 public class CsvProcessor {

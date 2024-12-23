@@ -6,7 +6,19 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import static uk.gov.companieshouse.filevalidationservice.utils.Constants.*;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_UNIQUE_ID_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COMPANY_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COMPANY_NUMBER_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_TRADING_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_FIRST_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_LAST_NAME_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_PROP_NAME_OR_NO_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_ADDRESSLINE1_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_ADDRESSLINE2_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_CITY_OR_TOWN_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_POSTCODE_LENGTH;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_COUNTRY_LENGTH;
+
 
 public class CsvRecordValidator {
 
