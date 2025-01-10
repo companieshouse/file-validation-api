@@ -6,6 +6,7 @@ public enum FileStatus {
     IN_PROGRESS("in-progress"),
 
     DOWNLOAD_ERROR("download-error"),
+    DOWNLOAD_AV_ERROR("download-av-error"),
     UPLOAD_ERROR("upload-error"),
     VALIDATION_ERROR("validation-error");
 

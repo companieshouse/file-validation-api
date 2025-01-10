@@ -91,7 +91,7 @@ class ValidationSchedulerTest {
 
         scheduler.processFiles();
 
-        verify(fileValidationRepository).updateStatusById(file1.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
+        verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file1.getFileId()), eq(FileStatus.DOWNLOAD_ERROR.getLabel()), any(), any(), eq("System"));
         verifySuccessfulProcessing(file2, fileApi);
     }
 
@@ -122,9 +122,9 @@ class ValidationSchedulerTest {
 
         scheduler.processFiles();
 
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
+        verify(fileValidationRepository).updateStatusById(eq(file.getId()), eq(FileStatus.IN_PROGRESS.getLabel()), any(), eq("System"));
         verifyNoMoreInteractions(s3UploadClient);
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.DOWNLOAD_ERROR.getLabel());
+        verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file.getFileId()), eq(FileStatus.DOWNLOAD_ERROR.getLabel()), any(), any(), eq("System"));
     }
 
     @Test
@@ -140,7 +140,7 @@ class ValidationSchedulerTest {
 
         scheduler.processFiles();
 
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.UPLOAD_ERROR.getLabel());
+        verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file.getFileId()), eq(FileStatus.UPLOAD_ERROR.getLabel()), any(), any(), eq("System"));
     }
 
     @Test
@@ -179,15 +179,14 @@ class ValidationSchedulerTest {
 
 
     private void verifySuccessfulProcessing(FileValidation file, FileApi fileApi) {
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
+        verify(fileValidationRepository).updateStatusById(eq(file.getId()), eq(FileStatus.IN_PROGRESS.getLabel()), any(), eq("System"));
         verify(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.COMPLETED.getLabel());
+        verify(fileValidationRepository).updateStatusById(eq(file.getId()), eq(FileStatus.COMPLETED.getLabel()), any(), eq("System"));
     }
 
     private void verifyErrorProcessing(FileValidation file, FileApi fileApi) {
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.IN_PROGRESS.getLabel());
+        verify(fileValidationRepository).updateStatusById(eq(file.getId()), eq(FileStatus.IN_PROGRESS.getLabel()), any(), eq("System"));
         verify(s3UploadClient).uploadFileOnError(fileApi.getBody(), file.getFileName(), file.getToLocation());
-        verify(fileValidationRepository).updateStatusById(file.getId(), FileStatus.VALIDATION_ERROR.getLabel());
-        verify(fileValidationRepository).updateErrorMessageById(any(), any());
+        verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file.getFileId()), eq(FileStatus.VALIDATION_ERROR.getLabel()), any(), any(), eq("System"));
     }
 }

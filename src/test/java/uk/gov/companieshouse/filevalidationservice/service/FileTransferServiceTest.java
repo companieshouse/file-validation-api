@@ -14,7 +14,7 @@ import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
-import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
+import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
 import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
 import java.util.Optional;
 
 @ExtendWith( MockitoExtension.class )
@@ -77,7 +76,7 @@ class FileTransferServiceTest {
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         // then
-        assertThrows(FileDownloadException.class, () -> fileTransferService.get(TEST_FILE_ID));
+        assertThrows(DownloadAvStatusException.class, () -> fileTransferService.get(TEST_FILE_ID));
     }
 
     @Test
@@ -149,7 +148,7 @@ class FileTransferServiceTest {
     }
 
     @Test
-    void testUploadFileThrowsIOExceptionException() throws IOException {
+    void testUploadFileThrowsIOExceptionException() {
         // Given
         MultipartFile mockFile = mock(MultipartFile.class);
         // then

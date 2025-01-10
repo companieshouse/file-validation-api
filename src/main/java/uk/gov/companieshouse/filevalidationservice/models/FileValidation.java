@@ -19,6 +19,8 @@ public class FileValidation {
     private LocalDateTime createdAt;
     private String status;
     private String errorMessage;
+    private String updatedBy;
+    private LocalDateTime updatedAt;
 
     public String getId() {
         return id;
@@ -90,5 +92,21 @@ public class FileValidation {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -36,7 +36,7 @@ public class S3UploadClient {
         try {
             s3.putObject(PutObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(String.format("%s/error/%s", amlBodyName, documentId))
+                    .key(String.format("%s/validator-error/%s", amlBodyName, documentId))
                     .build(), RequestBody.fromBytes(document));
         } catch (Exception e) {
             throw new S3UploadException(e.getMessage());
