@@ -74,6 +74,8 @@ public class FileTransferService {
 
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
             return Optional.of(response.getData());
+        } catch (DownloadAvStatusException e) {
+            throw e;
         } catch (Exception e) {
             throw new FileDownloadException(e.getMessage());
         }
