@@ -49,12 +49,12 @@ class ValidationSchedulerTest {
     }
     @Test
     void testNoPendingFiles() {
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Collections.emptyList());
 
         scheduler.processFiles();
 
-        verify(fileValidationRepository).findByStatus(FileStatus.PENDING.getLabel());
+        verify(fileValidationRepository).findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel());
         verifyNoInteractions(fileTransferService, s3UploadClient);
     }
 
@@ -62,7 +62,7 @@ class ValidationSchedulerTest {
     void testSuccessfulFileProcessing() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
@@ -80,7 +80,7 @@ class ValidationSchedulerTest {
         FileValidation file2 = createFileValidation("2", "file2", "test2.csv", FILE_LOCATION);
 
 
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Arrays.asList(file1, file2));
         when(fileTransferService.get(file1.getFileId()))
                 .thenThrow(FileDownloadException.class);
@@ -99,7 +99,7 @@ class ValidationSchedulerTest {
     void testInvalidFileProcessing() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
@@ -115,7 +115,7 @@ class ValidationSchedulerTest {
     void testFileTransferServiceError() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(anyString()))
                 .thenThrow(new FileDownloadException("Error downloading"));
@@ -131,7 +131,7 @@ class ValidationSchedulerTest {
     void testFileUploadError() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         when(fileTransferService.get(file.getFileId()))
                 .thenReturn(Optional.of(fileApi));
@@ -147,7 +147,7 @@ class ValidationSchedulerTest {
     void testUnknownError() {
         FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
 
-        when(fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel()))
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
                 .thenReturn(Collections.singletonList(file));
         doThrow(RuntimeException.class).when(fileTransferService).get(file.getFileId());
 
@@ -159,7 +159,7 @@ class ValidationSchedulerTest {
 
     @Test
     void testErrorGettingRecords() {
-        doThrow(RuntimeException.class).when(fileValidationRepository).findByStatus(FileStatus.PENDING.getLabel());
+        doThrow(RuntimeException.class).when(fileValidationRepository).findByStatuses(FileStatus.PENDING.getLabel());
 
         scheduler.processFiles();
 

@@ -49,9 +49,7 @@ public class ValidationScheduler {
     public void processFiles() {
         LOGGER.info("Scheduler started at : "+ LocalDateTime.now());
         try {
-            List<FileValidation> recordsToProcess = fileValidationRepository.findByStatus(FileStatus.PENDING.getLabel());
-            recordsToProcess.addAll(fileValidationRepository.findByStatus(FileStatus.DOWNLOAD_ERROR.getLabel()));
-            recordsToProcess.addAll(fileValidationRepository.findByStatus(FileStatus.UPLOAD_ERROR.getLabel()));
+            List<FileValidation> recordsToProcess = fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel());
             LOGGER.info("Total number of files to process : "+ recordsToProcess.size());
             recordsToProcess.forEach(recordToProcess -> {
                 Optional<FileApi> downloadedFile = Optional.empty();
