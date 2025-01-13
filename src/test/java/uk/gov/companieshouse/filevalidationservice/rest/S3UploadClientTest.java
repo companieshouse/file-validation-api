@@ -50,6 +50,8 @@ class S3UploadClientTest {
     @Test
     void testUploadFailure() {
         // given
+        byte[] bytes = "hello".getBytes();
+
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket("testBucket")
                 .key("testFolder/testFile")
@@ -59,7 +61,7 @@ class S3UploadClientTest {
         doThrow(RuntimeException.class).when(mockS3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
 
         // then
-        assertThrows(S3UploadException.class,  ()-> s3UploadClient.uploadFile("hello".getBytes(), "testFile", "testFolder"));
+        assertThrows(S3UploadException.class,  ()-> s3UploadClient.uploadFile(bytes, "testFile", "testFolder"));
     }
 
 
@@ -81,6 +83,9 @@ class S3UploadClientTest {
     @Test
     void testUploadFailureForErrorFile() {
         // given
+
+        byte[] bytes = "hello".getBytes();
+
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket("testBucket")
                 .key("testFolder/validator-error/testFile")
@@ -90,6 +95,6 @@ class S3UploadClientTest {
         doThrow(RuntimeException.class).when(mockS3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
 
         // then
-        assertThrows(S3UploadException.class,  ()-> s3UploadClient.uploadFileOnError("hello".getBytes(), "testFile", "testFolder"));
+        assertThrows(S3UploadException.class,  ()-> s3UploadClient.uploadFileOnError(bytes, "testFile", "testFolder"));
     }
 }
