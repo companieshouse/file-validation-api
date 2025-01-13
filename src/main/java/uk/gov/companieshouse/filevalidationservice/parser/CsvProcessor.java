@@ -45,7 +45,7 @@ public class CsvProcessor {
             currentRow++;
             while (it.hasNext()) {
                 CSVRecord record = it.next();
-                currentRow++;
+
                 if (!NUMBER_OF_COLUMNS.equals(record.size())) {
                     throw new CSVDataValidationException("Incorrect number of columns");
                 }
@@ -62,6 +62,7 @@ public class CsvProcessor {
                 CsvRecordValidator.validateCityOrTown(record.get(INDEX_OF_CITY_OR_TOWN));
                 CsvRecordValidator.validatePostcode(record.get(INDEX_OF_POSTCODE));
                 CsvRecordValidator.validateCountry(record.get(INDEX_OF_COUNTRY));
+                currentRow++;
             }
 
         } catch (IllegalStateException ex) {
