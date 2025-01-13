@@ -69,11 +69,11 @@ class CsvProcessorTest {
     }
 
     @Test
-    void csvRecordWithNoUniqueIdMustFailToParse() throws IOException {
+    void csvRecordWithNoUniqueIdMustSuccessfullyParse() throws IOException {
         File file = new File("src/test/resources/noUniqueId.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+        assertDoesNotThrow(() -> csvProcessor.parseRecords(bytes));
     }
     @Test
     void csvRecordWithUniqueIdOver256CharactersMustFailToParse() throws IOException {
