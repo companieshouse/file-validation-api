@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
+import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
 import uk.gov.companieshouse.filevalidationservice.exception.S3UploadException;
 import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
@@ -141,6 +142,21 @@ class ValidationSchedulerTest {
         scheduler.processFiles();
 
         verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file.getFileId()), eq(FileStatus.UPLOAD_ERROR.getLabel()), any(), any(), eq("System"));
+    }
+
+    @Test
+    void testDownloadErrorAvStatus() {
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
+
+
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel()))
+                .thenReturn(Collections.singletonList(file));
+        when(fileTransferService.get(file.getFileId()))
+                .thenThrow(DownloadAvStatusException.class);
+
+        scheduler.processFiles();
+
+        verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file.getFileId()), eq(FileStatus.DOWNLOAD_AV_ERROR.getLabel()), any(), any(), eq("System"));
     }
 
     @Test
