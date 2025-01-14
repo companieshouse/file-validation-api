@@ -68,8 +68,10 @@ public class FileTransferService {
             // No file with id
             if (details.isEmpty()) {
                 return Optional.empty();
-            } else if (!details.get().getAvStatusApi().equals(AvStatusApi.CLEAN)) {
-                throw new DownloadAvStatusException(String.format("Av Status is not clean, current status is %s for file %s", details.get().getAvStatusApi(), id));
+            } else if (details.get().getAvStatusApi().equals(AvStatusApi.INFECTED)) {
+                throw new DownloadAvStatusException(String.format("Av Status is infected for file %s", id));
+            } else if (details.get().getAvStatusApi().equals(AvStatusApi.NOT_SCANNED)) {
+                throw new FileDownloadException(String.format("Av has not ran for file %s", id));
             }
 
             ApiResponse<FileApi> response = fileTransferEndpoint.download(id);
