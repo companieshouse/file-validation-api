@@ -9,6 +9,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
@@ -60,21 +62,18 @@ class CsvProcessorTest {
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
 
-    @Test
-    void oneGoodRecordMustParse() throws IOException {
-        File file = new File("src/test/resources/oneGoodRecord.csv");
+    @ParameterizedTest
+    @ValueSource( strings = {
+            "src/test/resources/oneGoodRecord.csv",
+            "src/test/resources/noUniqueId.csv",
+            "src/test/resources/good_multiple_records.csv"
+    })
+    void validRecordsMustParse(String filePath) throws IOException{
+        File file = new File(filePath);
         byte[] bytes = FileUtils.readFileToByteArray(file);
-
         assertDoesNotThrow(() -> csvProcessor.parseRecords(bytes));
     }
 
-    @Test
-    void csvRecordWithNoUniqueIdMustFailToParse() throws IOException {
-        File file = new File("src/test/resources/noUniqueId.csv");
-        byte[] bytes = FileUtils.readFileToByteArray(file);
-
-        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
-    }
     @Test
     void csvRecordWithUniqueIdOver256CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/uniqueIdOverCharLimit.csv");
@@ -169,13 +168,5 @@ class CsvProcessorTest {
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
-    }
-
-    @Test
-    void TwoGoodRecordMustParse() throws IOException {
-        File file = new File("src/test/resources/good_multiple_records.csv");
-        byte[] bytes = FileUtils.readFileToByteArray(file);
-
-        assertDoesNotThrow(() -> csvProcessor.parseRecords(bytes));
     }
 }

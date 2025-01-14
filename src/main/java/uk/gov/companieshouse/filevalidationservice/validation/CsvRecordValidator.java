@@ -23,7 +23,7 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_CO
 public class CsvRecordValidator {
 
     public static void validateUniqueId(String uniqueId) {
-        if (uniqueId.isEmpty() || uniqueId.length() > MAX_UNIQUE_ID_LENGTH) {
+        if (uniqueId.length() > MAX_UNIQUE_ID_LENGTH) {
             throw new CSVDataValidationException("Unique ID is not valid");
         }
     }
