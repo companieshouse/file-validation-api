@@ -67,19 +67,19 @@ public class ValidationScheduler {
                 } catch (FileDownloadException e) {
                     var errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);
-                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getFileId(), FileStatus.DOWNLOAD_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
+                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), FileStatus.DOWNLOAD_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
                 }  catch (DownloadAvStatusException e) {
                     var errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);
-                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getFileId(), FileStatus.DOWNLOAD_AV_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
+                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), FileStatus.DOWNLOAD_AV_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
                 } catch (S3UploadException e) {
                     var errorMessage = String.format("Failed to upload to S3 for file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);
-                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getFileId(), FileStatus.UPLOAD_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
+                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), FileStatus.UPLOAD_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
                 } catch (CSVDataValidationException e){
                     var errorMessage = String.format("Failed to validate file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);
-                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getFileId(), FileStatus.VALIDATION_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
+                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), FileStatus.VALIDATION_ERROR.getLabel(), errorMessage, LocalDateTime.now(), SYSTEM);
                     s3UploadClient.uploadFileOnError(downloadedFile.get().getBody(), recordToProcess.getFileName(),
                             recordToProcess.getToLocation());
                 } catch (Exception e) {

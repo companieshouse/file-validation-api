@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
 import uk.gov.companieshouse.api.model.filetransfer.IdApi;
 import uk.gov.companieshouse.filevalidationservice.exception.DownloadAvStatusException;
+import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
 import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
@@ -68,7 +69,7 @@ class FileTransferServiceTest {
     }
 
     @Test
-    void testGetFileNotCleanThrowsException() throws ApiErrorResponseException, URIValidationException {
+    void testGetFileInfectedThrowsException() throws ApiErrorResponseException, URIValidationException {
         // given
         FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.INFECTED, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
         ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(200, null, fileDetailsApi);
@@ -77,6 +78,18 @@ class FileTransferServiceTest {
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
         // then
         assertThrows(DownloadAvStatusException.class, () -> fileTransferService.get(TEST_FILE_ID));
+    }
+
+    @Test
+    void testGetFileNotScannedThrowsException() throws ApiErrorResponseException, URIValidationException {
+        // given
+        FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.NOT_SCANNED, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
+        ApiResponse<FileDetailsApi> detailsResponse = new ApiResponse<>(200, null, fileDetailsApi);
+
+        // when
+        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenReturn(detailsResponse);
+        // then
+        assertThrows(FileDownloadException.class, () -> fileTransferService.get(TEST_FILE_ID));
     }
 
     @Test
