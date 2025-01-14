@@ -70,7 +70,7 @@ public class FileTransferService {
                 return Optional.empty();
             } else if (details.get().getAvStatusApi().equals(AvStatusApi.INFECTED)) {
                 throw new DownloadAvStatusException(String.format("Av Status is infected for file %s", id));
-            } else if (details.get().getAvStatusApi().equals(AvStatusApi.INFECTED)) {
+            } else if (details.get().getAvStatusApi().equals(AvStatusApi.NOT_SCANNED)) {
                 throw new FileDownloadException(String.format("Av has not ran for file %s", id));
             }
 
