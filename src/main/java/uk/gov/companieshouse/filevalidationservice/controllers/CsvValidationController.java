@@ -4,15 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.companieshouse.api.fileValidation.api.FileValidationInterface;
 import uk.gov.companieshouse.api.fileValidation.model.FileUploadResponse;
-import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.filevalidationservice.exception.BadRequestRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
@@ -22,7 +18,6 @@ import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 import uk.gov.companieshouse.filevalidationservice.utils.Constants;
 
 import java.net.URI;
-import java.util.Optional;
 
 @RestController
 public class CsvValidationController implements FileValidationInterface {
@@ -33,20 +28,6 @@ public class CsvValidationController implements FileValidationInterface {
 
     public CsvValidationController( final FileTransferService fileTransferService ) {
         this.fileTransferService = fileTransferService;
-    }
-
-    @GetMapping("/file-validation-api/document/{document_id}")
-    public ResponseEntity<?> downloadFile(@PathVariable("document_id") String id) {
-        try {
-            Optional<FileApi> downloadedFile = fileTransferService.get(id);
-
-            if(downloadedFile.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(downloadedFile.get(), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @Override
