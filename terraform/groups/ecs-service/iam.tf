@@ -25,8 +25,8 @@ data "aws_iam_policy_document" "bucket_access_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::acsp-aml-data-${var.environment}-chips-data/*",
-      "arn:aws:s3:::acsp-aml-data-${var.environment}-chips-data"
+      "arn:aws:s3:::${var.environment}-acsp-aml-data-chips-data/*",
+      "arn:aws:s3:::${var.environment}-acsp-aml-data-chips-data"
     ]
   }
 }
