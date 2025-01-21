@@ -51,7 +51,7 @@ public class ValidationScheduler {
     public void processFiles() {
         LOGGER.info("Scheduler started at : "+ LocalDateTime.now());
         try {
-            List<FileValidation> recordsToProcess = fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel());
+            List<FileValidation> recordsToProcess = fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel(), FileStatus.ERROR.getLabel());
             LOGGER.info("Total number of files to process : "+ recordsToProcess.size());
             recordsToProcess.forEach(recordToProcess -> {
                 Optional<FileApi> downloadedFile = Optional.empty();
@@ -84,7 +84,7 @@ public class ValidationScheduler {
                             recordToProcess.getToLocation());
                 } catch (Exception e) {
                     LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getId()));
-                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), "error" , e.getMessage(), LocalDateTime.now(), SYSTEM);
+                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), FileStatus.ERROR.getLabel(), e.getMessage(), LocalDateTime.now(), SYSTEM);
                 }
             });
         }catch (Exception e){
