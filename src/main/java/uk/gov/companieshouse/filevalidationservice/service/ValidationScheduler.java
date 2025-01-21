@@ -89,7 +89,8 @@ public class ValidationScheduler {
             });
         }catch (Exception e){
             LOGGER.error(String.format("Error getting records to process %s", e.getMessage()));
+        }finally{
+            LOGGER.info("Scheduler finished at : "+ LocalDateTime.now());
         }
-        LOGGER.info("Scheduler finished at : "+ LocalDateTime.now());
     }
 }
