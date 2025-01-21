@@ -84,6 +84,7 @@ public class ValidationScheduler {
                             recordToProcess.getToLocation());
                 } catch (Exception e) {
                     LOGGER.error(String.format("An unknown error occurred while running scheduler %s, with record id %s", e.getMessage(), recordToProcess.getId()));
+                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), "error" , e.getMessage(), LocalDateTime.now(), SYSTEM);
                 }
             });
         }catch (Exception e){
