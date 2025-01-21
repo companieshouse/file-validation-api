@@ -18,10 +18,12 @@ data "aws_iam_policy_document" "ecs_task_policy" {
 
 data "aws_iam_policy_document" "bucket_access_policy" {
   statement {
-    sid = "S3PutObject"
+    sid = "S3Permissions"
 
     actions = [
-      "s3:PutObject"
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:ListObject"
     ]
 
     resources = [
