@@ -57,7 +57,7 @@ public class ValidationScheduler {
                 Optional<FileApi> downloadedFile = Optional.empty();
                 try {
                     LOGGER.info("Processing record with id: " + recordToProcess.getId());
-                    fileValidationRepository.updateStatusAndErrorMessageById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel(), "", LocalDateTime.now(), SYSTEM);
+                    fileValidationRepository.updateStatusAndRemoveErrorMessageById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel(), LocalDateTime.now(), SYSTEM);
                     downloadedFile = fileTransferService.get(recordToProcess.getFileId());
                     csvProcessor.parseRecords(downloadedFile.get().getBody());
                     s3UploadClient.uploadFile(downloadedFile.get().getBody(),

@@ -23,4 +23,8 @@ public interface FileValidationRepository extends MongoRepository<FileValidation
     @Update("{ '$set' : { 'status' : ?1, 'error_message' : ?2, updated_at : ?3, updated_by : ?4 }}")
     void updateStatusAndErrorMessageById(String id, String newStatus, String errorMessage, LocalDateTime updatedAt, String updatedBy);
 
+    @Query(value = "{ '_id' : ?0 }")
+    @Update("{ '$set' : { 'status' : ?1, 'updated_at' : ?2, 'updated_by' : ?3 }, '$unset' : { 'error_message' : '' }}")
+    void updateStatusAndRemoveErrorMessageById(String id, String newStatus, LocalDateTime updatedAt, String updatedBy);
+
 }
