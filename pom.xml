@@ -136,6 +136,12 @@
 			<artifactId>shedlock-provider-mongo</artifactId>
 			<version>6.0.2</version>
 		</dependency>
+		<!-- Tika -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
