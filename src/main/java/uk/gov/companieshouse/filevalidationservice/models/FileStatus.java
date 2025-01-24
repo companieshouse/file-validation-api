@@ -8,7 +8,9 @@ public enum FileStatus {
     DOWNLOAD_ERROR("download-error"),
     DOWNLOAD_AV_ERROR("download-av-error"),
     UPLOAD_ERROR("upload-error"),
-    VALIDATION_ERROR("validation-error");
+    VALIDATION_ERROR("validation-error"),
+
+    ERROR("error");
 
     public final String label;
 
