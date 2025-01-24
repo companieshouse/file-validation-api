@@ -16,9 +16,6 @@ import uk.gov.companieshouse.filevalidationservice.exception.InternalServerError
 import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 import uk.gov.companieshouse.filevalidationservice.utils.Constants;
-import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
-import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.logging.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,27 +23,22 @@ import java.net.URI;
 @RestController
 public class CsvValidationController implements FileValidationInterface {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
-
     private final FileTransferService fileTransferService;
 
-    public CsvValidationController( final FileTransferService fileTransferService ) {
+    private final Tika tika;
+
+    public CsvValidationController( final FileTransferService fileTransferService, Tika tika) {
         this.fileTransferService = fileTransferService;
+        this.tika = tika;
     }
 
     @Override
     public ResponseEntity<FileUploadResponse> uploadFile(MultipartFile file, @Valid String metadata){
         try {
-
-//            // checking file extension in file name
-//            if (file.isEmpty() || !file.getOriginalFilename().endsWith(".csv")) {
-//                throw new BadRequestRuntimeException("Please upload a valid CSV file");
-//            }
-            Tika tika = new Tika();
-            String type = tika.detect(file.getInputStream(), file.getOriginalFilename());
-
-            LOGGER.info("File type: " + type);
-
+            String fileType = tika.detect(file.getInputStream(), file.getOriginalFilename());
+            if (!fileType.equals("text/csv")){
+                throw new BadRequestRuntimeException("Please upload a valid CSV file");
+            }
             var objectMapper = new ObjectMapper();
             var fileMetaData = objectMapper.readValue(metadata, FileMetaData.class);
             if(StringUtils.isEmpty(fileMetaData.getFileName()) || StringUtils.isEmpty(fileMetaData.getFromLocation()) || StringUtils.isEmpty(fileMetaData.getToLocation())){
