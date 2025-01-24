@@ -38,6 +38,7 @@ public class CsvValidationController implements FileValidationInterface {
         try {
 
             LOGGER.info(file.toString());
+            LOGGER.info(String.format("Name: %s, Original Filename: %s, Content Type: %s", file.getName(), file.getOriginalFilename(), file.getContentType()));
 
             var objectMapper = new ObjectMapper();
             var fileMetaData = objectMapper.readValue(metadata, FileMetaData.class);

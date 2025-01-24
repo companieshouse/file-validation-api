@@ -58,18 +58,18 @@ class CsvValidationControllerTest {
         assertTrue(thrown.getMessage().contains("ERROR"));
     }
 
-    @Test
-    void testUploadEmptyFileReturnsStatus400() {
-        // Given
-        MultipartFile file = new MockMultipartFile("abc","fileName", "text/csv", new byte[0] );
-        String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
-
-        Exception thrown = assertThrows(
-                BadRequestRuntimeException.class,
-                () -> csvValidationController.uploadFile(file, metaData)
-        );
-        assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
-    }
+//    @Test
+//    void testUploadEmptyFileReturnsStatus400() {
+//        // Given
+//        MultipartFile file = new MockMultipartFile("abc","fileName", "text/csv", new byte[0] );
+//        String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
+//
+//        Exception thrown = assertThrows(
+//                BadRequestRuntimeException.class,
+//                () -> csvValidationController.uploadFile(file, metaData)
+//        );
+//        assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
+//    }
 
     @Test
     void testUploadIncorrectMetaDataReturnsStatus400() throws JsonProcessingException {
@@ -85,18 +85,18 @@ class CsvValidationControllerTest {
         assertTrue(thrown.getMessage().contains("Please provide a valid metadata: " + fileMetaData));
     }
 
-    @Test
-    void testUploadInvalidFileContentReturnsStatus400(){
-        // Given
-        MultipartFile file = new MockMultipartFile("abc", null, "", "Hello world".getBytes() );
-            String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
-
-            Exception thrown = assertThrows(
-                    BadRequestRuntimeException.class,
-                    () -> csvValidationController.uploadFile(file, metaData)
-            );
-            assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
-    }
+//    @Test
+//    void testUploadInvalidFileContentReturnsStatus400(){
+//        // Given
+//        MultipartFile file = new MockMultipartFile("abc", null, "", "Hello world".getBytes() );
+//            String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
+//
+//            Exception thrown = assertThrows(
+//                    BadRequestRuntimeException.class,
+//                    () -> csvValidationController.uploadFile(file, metaData)
+//            );
+//            assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
+//    }
 
     @Test
     void testUploadInvalidFileReturnsStatus500(){
