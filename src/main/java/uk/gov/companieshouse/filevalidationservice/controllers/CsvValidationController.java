@@ -16,13 +16,16 @@ import uk.gov.companieshouse.filevalidationservice.exception.InternalServerError
 import uk.gov.companieshouse.filevalidationservice.models.FileMetaData;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
 import uk.gov.companieshouse.filevalidationservice.utils.Constants;
+import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 import java.net.URI;
 
 @RestController
 public class CsvValidationController implements FileValidationInterface {
 
-    // TODO: use private-api-sdk-java interfaces, instead of @RequestMapping
+    private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
 
     private final FileTransferService fileTransferService;
 
@@ -33,9 +36,10 @@ public class CsvValidationController implements FileValidationInterface {
     @Override
     public ResponseEntity<FileUploadResponse> uploadFile(MultipartFile file, @Valid String metadata){
         try {
-            if (file.isEmpty() || !file.getContentType().equals("text/csv")){
-                throw new BadRequestRuntimeException("Please upload a valid CSV file");
-            }
+
+            LOGGER.info(file.toString());
+            LOGGER.info(String.format("Name: %s, Original Filename: %s, Content Type: %s", file.getName(), file.getOriginalFilename(), file.getContentType()));
+
             var objectMapper = new ObjectMapper();
             var fileMetaData = objectMapper.readValue(metadata, FileMetaData.class);
             if(StringUtils.isEmpty(fileMetaData.getFileName()) || StringUtils.isEmpty(fileMetaData.getFromLocation()) || StringUtils.isEmpty(fileMetaData.getToLocation())){
