@@ -14,8 +14,8 @@ import uk.gov.companieshouse.filevalidationservice.utils.ApiClientUtil;
 @Component
 public class FileTransferEndpoint {
 
-    @Value( "${internal.api.url}" )
-    private String internalApiUrl;
+    @Value( "${file.transfer.api.url}" )
+    private String fileTransferApiUrl;
 
     private final ApiClientUtil apiClientUtil;
 
@@ -25,28 +25,28 @@ public class FileTransferEndpoint {
     }
 
     public ApiResponse<IdApi> upload( final FileApi fileApi ) throws ApiErrorResponseException, URIValidationException {
-        return apiClientUtil.getInternalApiClient( internalApiUrl )
+        return apiClientUtil.getInternalApiClient(fileTransferApiUrl)
                 .privateFileTransferResourceHandler()
                 .upload( fileApi )
                 .execute();
     }
 
     public ApiResponse<FileDetailsApi> details( final String fileId ) throws ApiErrorResponseException, URIValidationException {
-        return apiClientUtil.getInternalApiClient( internalApiUrl )
+        return apiClientUtil.getInternalApiClient(fileTransferApiUrl)
                 .privateFileTransferResourceHandler()
                 .details( fileId )
                 .execute();
     }
 
     public ApiResponse<FileApi> download( final String fileId ) throws ApiErrorResponseException, URIValidationException {
-        return apiClientUtil.getInternalApiClient( internalApiUrl )
+        return apiClientUtil.getInternalApiClient(fileTransferApiUrl)
                 .privateFileTransferResourceHandler()
                 .download( fileId )
                 .execute();
     }
 
     public ApiResponse<Void> delete( final String fileId ) throws ApiErrorResponseException, URIValidationException {
-        return apiClientUtil.getInternalApiClient( internalApiUrl )
+        return apiClientUtil.getInternalApiClient(fileTransferApiUrl)
                 .privateFileTransferResourceHandler()
                 .delete( fileId )
                 .execute();
