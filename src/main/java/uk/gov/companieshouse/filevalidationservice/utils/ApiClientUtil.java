@@ -10,8 +10,8 @@ public class ApiClientUtil {
     @Autowired
     private InternalApiClient internalApiClient;
 
-    public InternalApiClient getInternalApiClient( final String internalApiUrl ) {
-        internalApiClient.setBasePath( internalApiUrl );
+    public InternalApiClient getInternalApiClient( final String fileTransferApiUrl ) {
+        internalApiClient.setBasePath( fileTransferApiUrl );
         return internalApiClient;
     }
 
