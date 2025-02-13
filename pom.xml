@@ -10,7 +10,7 @@
 	<artifactId>file-validation-api</artifactId>
 	<version>unversioned</version>
 	<name>file-validation-api</name>
-	<description>ACSP workstream</description>
+	<description>File Validation workstream</description>
 	<properties>
 		<main.class>uk.gov.companieshouse.filevalidationservice.FileValidationApplication</main.class>
 		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
@@ -20,11 +20,10 @@
 		<private-api-sdk-java.version>4.0.248</private-api-sdk-java.version>
 		<api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
 		<api-security-java.version>2.0.7</api-security-java.version>
-		<org.mapstruct.version>1.6.0.RC1</org.mapstruct.version>
+		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<spring-boot-dependencies.version>3.4.0</spring-boot-dependencies.version>
 		<spring-boot-maven-plugin.version>3.3.5</spring-boot-maven-plugin.version>
 		<dependency-check-plugin.version>8.3.1</dependency-check-plugin.version>
-		<sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>1.20.1</junit-jupiter.version>
 		<api-helper-java.version>3.0.1</api-helper-java.version>
@@ -149,21 +148,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sonarsource.scanner.maven</groupId>
-			<artifactId>sonar-maven-plugin</artifactId>
-			<version>${sonar-maven-plugin.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>${junit-jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
