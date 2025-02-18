@@ -77,7 +77,6 @@ class CsvValidationControllerTest {
         String metaData = "{\"fileName\":\"Test file\",\"toLocation\":\"S3:abc\"}";
 
         // When
-        when(tika.detect(any(InputStream.class), any(String.class))).thenReturn("text/csv");
         var objectMapper = new ObjectMapper();
         var fileMetaData = objectMapper.readValue(metaData, FileMetaData.class);
 

@@ -43,7 +43,7 @@ public class CsvValidationController implements FileValidationInterface {
             }
             String fileType = tika.detect(file.getInputStream(), file.getOriginalFilename());
             if (!fileType.equals("text/csv")){
-                throw new BadRequestRuntimeException(String.format("Please upload a valid CSV file. fileName: %s, amlBodyName: %s", file.getName(), fileMetaData.getFromLocation()));
+                throw new BadRequestRuntimeException(String.format("Please upload a valid CSV file. fileName: %s, amlBodyName: %s", fileMetaData.getFileName(), fileMetaData.getFromLocation()));
             }
             String id = fileTransferService.upload(file, fileMetaData);
             return ResponseEntity.created(URI.create(Constants.UPLOAD_URI_PATTERN)).body(new FileUploadResponse().id(id));

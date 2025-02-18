@@ -45,7 +45,7 @@ public class CsvProcessor {
                 CSVRecord record = it.next();
 
                 if (!NUMBER_OF_COLUMNS.equals(record.size())) {
-                    throw new CSVDataValidationException(String.format("Incorrect number of columns. Received: %s, Expected: %s", record.size(), NUMBER_OF_COLUMNS ));
+                    throw new CSVDataValidationException(String.format("Incorrect number of columns. Received: %s Expected: %s", record.size(), NUMBER_OF_COLUMNS ));
                 }
                 CsvRecordValidator.validateUniqueId(record.get(INDEX_OF_UNIQUE_ID));
                 CsvRecordValidator.validateRegisteredCompanyName(record.get(INDEX_OF_COMPANY_NAME));
