@@ -56,7 +56,7 @@ public class ValidationScheduler {
             recordsToProcess.forEach(recordToProcess -> {
                 Optional<FileApi> downloadedFile = Optional.empty();
                 try {
-                    LOGGER.info("Processing record with id: " + recordToProcess.getId());
+                    LOGGER.info(String.format("Processing record with id: %s, fileName: %s, amlBodyName: %s", recordToProcess.getId(), recordToProcess.getFileName(), recordToProcess.getFromLocation()));
                     fileValidationRepository.updateStatusAndRemoveErrorMessageById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel(), LocalDateTime.now(), SYSTEM);
                     downloadedFile = fileTransferService.get(recordToProcess.getFileId());
                     csvProcessor.parseRecords(downloadedFile.get().getBody());
@@ -64,6 +64,7 @@ public class ValidationScheduler {
                             recordToProcess.getFileName(),
                             recordToProcess.getToLocation());
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel(), LocalDateTime.now(), SYSTEM);
+                    LOGGER.info(String.format("Processing finished for record with id: %s, fileName: %s, amlBodyName: %s", recordToProcess.getId(), recordToProcess.getFileName(), recordToProcess.getFromLocation()));
                 } catch (FileDownloadException e) {
                     var errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);

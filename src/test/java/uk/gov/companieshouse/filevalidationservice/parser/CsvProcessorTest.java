@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -19,6 +21,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +47,9 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/tooFewHeaders.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+        Exception exception = assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+        String msg = "Data validation exception: Headers did not match expected headers, following headers are missing: [registered company name, company number] at row number 0";
+        assertEquals(msg, exception.getMessage());
     }
 
     @Test
@@ -59,7 +65,9 @@ class CsvProcessorTest {
         File file = new File("src/test/resources/tooFewColumns.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
 
-        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+        Exception exception =  assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+        String msg = "Data validation exception: Incorrect number of columns. Received: 6 Expected: 13 at row number 1";
+        assertEquals(msg, exception.getMessage());
     }
 
     @Test
