@@ -174,6 +174,22 @@ class ValidationSchedulerTest {
     }
 
     @Test
+    void testUnknownUploadError() {
+        FileValidation file = createFileValidation("1", "file1", "test.csv", FILE_LOCATION);
+
+        when(fileValidationRepository.findByStatuses(FileStatus.PENDING.getLabel(), FileStatus.DOWNLOAD_ERROR.getLabel(), FileStatus.UPLOAD_ERROR.getLabel(),FileStatus.ERROR.getLabel()))
+                .thenReturn(Collections.singletonList(file));
+        when(fileTransferService.get(file.getFileId()))
+                .thenReturn(Optional.of(fileApi));
+        doNothing().when(csvProcessor).parseRecords(any());
+        doThrow(RuntimeException.class).when(s3UploadClient).uploadFile(fileApi.getBody(), file.getFileName(), file.getToLocation());
+
+        scheduler.processFiles();
+
+        verify(fileValidationRepository).updateStatusAndErrorMessageById(eq(file.getId()), eq(FileStatus.ERROR.getLabel()), any(), any(), eq("System"));
+    }
+
+    @Test
     void testErrorGettingRecords() {
         doThrow(RuntimeException.class).when(fileValidationRepository).findByStatuses(FileStatus.PENDING.getLabel());
 

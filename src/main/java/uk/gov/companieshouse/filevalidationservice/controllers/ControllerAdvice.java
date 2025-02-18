@@ -2,12 +2,9 @@ package uk.gov.companieshouse.filevalidationservice.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -92,22 +89,22 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         return errors;
     }
 
-    @ExceptionHandler( ConstraintViolationException.class )
-    @ResponseStatus( HttpStatus.BAD_REQUEST )
-    @ResponseBody
-    public Errors onConstraintViolationException( final ConstraintViolationException exception, final HttpServletRequest request ) {
-        final var errorsToBeLogged = new Errors();
-        for ( ConstraintViolation<?> constraintViolation : exception.getConstraintViolations() ) {
-            errorsToBeLogged.addError( Err.invalidBodyBuilderWithLocation( FILE_VALIDATION_API )
-                    .withError( String.format( "%s %s", Optional.of( constraintViolation.getInvalidValue() ).orElse(" "),constraintViolation.getMessage() ) ).build() );
-        }
-
-        final var xRequestId = request.getHeader( X_REQUEST_ID );
-        final var errorsJsonString = getJsonStringFromErrors( xRequestId, errorsToBeLogged );
-        LOG.errorContext( xRequestId, String.format( "Validation Failed with [%s]", errorsJsonString), null, null );
-
-        return errorsToBeLogged;
-    }
+//    @ExceptionHandler( ConstraintViolationException.class )
+//    @ResponseStatus( HttpStatus.BAD_REQUEST )
+//    @ResponseBody
+//    public Errors onConstraintViolationException( final ConstraintViolationException exception, final HttpServletRequest request ) {
+//        final var errorsToBeLogged = new Errors();
+//        for ( ConstraintViolation<?> constraintViolation : exception.getConstraintViolations() ) {
+//            errorsToBeLogged.addError( Err.invalidBodyBuilderWithLocation( FILE_VALIDATION_API )
+//                    .withError( String.format( "%s %s", Optional.of( constraintViolation.getInvalidValue() ).orElse(" "),constraintViolation.getMessage() ) ).build() );
+//        }
+//
+//        final var xRequestId = request.getHeader( X_REQUEST_ID );
+//        final var errorsJsonString = getJsonStringFromErrors( xRequestId, errorsToBeLogged );
+//        LOG.errorContext( xRequestId, String.format( "Validation Failed with [%s]", errorsJsonString), null, null );
+//
+//        return errorsToBeLogged;
+//    }
 
     @ExceptionHandler( Exception.class )
     @ResponseStatus( HttpStatus.INTERNAL_SERVER_ERROR )
