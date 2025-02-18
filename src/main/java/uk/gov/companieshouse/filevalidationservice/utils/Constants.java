@@ -5,7 +5,7 @@ import java.util.List;
 public class Constants {
     public static final List<String> VALID_HEADERS = List.of("unique id", "registered company name", "company number", "trading name", "first name", "last name", "date of birth",
             "property name or number","address line 1","address line 2","city or town","postcode","country");
-     public static final Integer NUMBER_OF_COLUMNS = 13 ;
+    public static final Integer NUMBER_OF_COLUMNS = 13 ;
     public static final int INDEX_OF_UNIQUE_ID = 0;
     public static final int INDEX_OF_COMPANY_NAME = 1;
     public static final int INDEX_OF_COMPANY_NUMBER = 2;
