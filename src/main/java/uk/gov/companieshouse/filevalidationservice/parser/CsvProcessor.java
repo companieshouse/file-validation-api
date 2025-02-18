@@ -30,7 +30,6 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
 
 
-
 @Component
 public class CsvProcessor {
 
@@ -76,7 +75,8 @@ public class CsvProcessor {
 
 
     private void isValidFieldHeaders(CSVRecord csvRecord) {
-        List<String>  actualHeaders = csvRecord.stream().map(String::toLowerCase).toList();
+        List<String>  actualHeaders = csvRecord.stream().map(String->String.replace("\"","").trim()
+                .toLowerCase()).toList();
         if (!actualHeaders.equals(VALID_HEADERS)) {
             throw new CSVDataValidationException("Headers did not match expected headers");
         }
