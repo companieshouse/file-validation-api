@@ -75,8 +75,13 @@ public class CsvProcessor {
 
 
     private void isValidFieldHeaders(CSVRecord csvRecord) {
-        List<String>  actualHeaders = csvRecord.stream().map(header->header.replace("\"","").trim()
-                .toLowerCase()).toList();
+        List<String>  actualHeaders = csvRecord.stream()
+                .map(header -> {
+                    String withoutQuotes = header.replace("\"", "");
+                    String trimmed = withoutQuotes.trim();
+                    return trimmed.toLowerCase();
+                })
+                .toList();
         if (!actualHeaders.equals(VALID_HEADERS)) {
             throw new CSVDataValidationException("Headers did not match expected headers");
         }
