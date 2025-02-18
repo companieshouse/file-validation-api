@@ -2,16 +2,21 @@ package uk.gov.companieshouse.filevalidationservice.parser;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 
@@ -21,6 +26,9 @@ class CsvProcessorTest {
 
     @InjectMocks
     private CsvProcessor csvProcessor;
+
+    @Mock
+    private CSVFormat csvFormat;
 
     @Test
     void emptyFileMustFailToParse() throws IOException {
@@ -168,6 +176,24 @@ class CsvProcessorTest {
     void csvRecordWithCountryOver50CharactersMustFailToParse() throws IOException {
         File file = new File("src/test/resources/countryOverCharLimit.csv");
         byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+    @Test
+    void csvRecordThrowsIOExceptionMustFailToParse() throws IOException {
+        byte[] bytes = new byte[0];
+        Reader reader = mock(InputStreamReader.class);
+        lenient().when(reader.read(any(char[].class), anyInt(), anyInt())).thenThrow(new IOException("Test IOException"));
+
+        assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+
+    @Test
+    void csvRecordThrowsIllegalStateExceptionMustFailToParse() throws IOException {
+        byte[] bytes = new byte[0];
+        Reader reader = new InputStreamReader(new ByteArrayInputStream(bytes));
+        CSVParser parser = mock(CSVParser.class);
+        lenient().when(csvFormat.parse(reader)).thenThrow(new IllegalStateException("Test IllegalStateException"));
 
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
     }
