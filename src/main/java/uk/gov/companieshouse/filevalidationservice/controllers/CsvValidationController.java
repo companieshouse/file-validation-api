@@ -37,7 +37,7 @@ public class CsvValidationController implements FileValidationInterface {
         try {
             String fileType = tika.detect(file.getInputStream(), file.getOriginalFilename());
             if (!fileType.equals("text/csv")){
-                throw new BadRequestRuntimeException("Please upload a valid CSV file");
+                throw new BadRequestRuntimeException("Please upload a valid CSV file: "  + file.getName());
             }
             var objectMapper = new ObjectMapper();
             var fileMetaData = objectMapper.readValue(metadata, FileMetaData.class);

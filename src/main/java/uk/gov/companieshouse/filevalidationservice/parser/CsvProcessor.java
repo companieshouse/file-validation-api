@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
@@ -46,7 +45,7 @@ public class CsvProcessor {
                 CSVRecord record = it.next();
 
                 if (!NUMBER_OF_COLUMNS.equals(record.size())) {
-                    throw new CSVDataValidationException("Incorrect number of columns");
+                    throw new CSVDataValidationException("Incorrect number of columns. Received: " + record.size() + ",Expected: " + NUMBER_OF_COLUMNS);
                 }
                 CsvRecordValidator.validateUniqueId(record.get(INDEX_OF_UNIQUE_ID));
                 CsvRecordValidator.validateRegisteredCompanyName(record.get(INDEX_OF_COMPANY_NAME));
@@ -82,8 +81,11 @@ public class CsvProcessor {
                     return trimmed.toLowerCase();
                 })
                 .toList();
-        if (!actualHeaders.equals(VALID_HEADERS)) {
-            throw new CSVDataValidationException("Headers did not match expected headers");
+        List<String> mismatchedHeaders = VALID_HEADERS.stream()
+                .filter(element -> !actualHeaders.contains(element))
+                .toList();
+        if (!mismatchedHeaders.isEmpty()) {
+            throw new CSVDataValidationException("Headers did not match expected headers, following headers are missing: " + mismatchedHeaders);
         }
     }
 
