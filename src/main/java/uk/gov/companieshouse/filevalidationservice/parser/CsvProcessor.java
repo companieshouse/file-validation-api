@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
@@ -82,8 +84,7 @@ public class CsvProcessor {
                 })
                 .toList();
         List<String> mismatchedHeaders = VALID_HEADERS.stream()
-                .filter(element -> !actualHeaders.contains(element))
-                .toList();
+                .filter(element -> !actualHeaders.contains(element)).collect(Collectors.toList());
         if (!mismatchedHeaders.isEmpty()) {
             throw new CSVDataValidationException(String.format("Headers did not match expected headers, following headers are missing: %s", mismatchedHeaders));
         }
