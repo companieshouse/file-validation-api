@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.filevalidationservice.service;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpResponseException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -105,14 +107,33 @@ class FileTransferServiceTest {
         assertTrue(maybeFile.isEmpty());
     }
 
+    @Test
+    void testThrowsFileDownloadExceptionWhenApiErrorResponseStatus404() throws ApiErrorResponseException, URIValidationException {
+        // given
+        // when
+        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenThrow(new ApiErrorResponseException(new HttpResponseException.Builder(404, "Not Found", new HttpHeaders())));
+        Optional<FileApi> maybeFile = fileTransferService.get(TEST_FILE_ID);
+
+        // then
+        assertTrue(maybeFile.isEmpty());
+    }
 
     @Test
-    void testThrowsRuntimeExceptionWhenAPIErrorGettingDetails() throws ApiErrorResponseException, URIValidationException {
+    void testThrowsFileDownloadExceptionWhenAPIErrorGettingDetails() throws ApiErrorResponseException, URIValidationException {
         // given
         // when
         when(fileTransferEndpoint.details(TEST_FILE_ID)).thenThrow(mock(ApiErrorResponseException.class));
         // then
-        assertThrows(RuntimeException.class, () -> fileTransferService.get(TEST_FILE_ID));
+        assertThrows(FileDownloadException.class, () -> fileTransferService.get(TEST_FILE_ID));
+    }
+
+    @Test
+    void testThrowsFileDownloadExceptionWhenURIValidationExceptionGettingDetails() throws ApiErrorResponseException, URIValidationException {
+        // given
+        // when
+        when(fileTransferEndpoint.details(TEST_FILE_ID)).thenThrow(mock(URIValidationException.class));
+        // then
+        assertThrows(FileDownloadException.class, () -> fileTransferService.get(TEST_FILE_ID));
     }
 
     @Test
