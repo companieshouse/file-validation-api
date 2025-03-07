@@ -14,7 +14,6 @@ import uk.gov.companieshouse.filevalidationservice.configuration.InterceptorConf
 import uk.gov.companieshouse.filevalidationservice.exception.InternalServerErrorRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.exception.NotFoundRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
-import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -34,9 +33,6 @@ class ControllerAdviceTest {
 
     @MockitoBean
     private InterceptorConfig interceptorConfig;
-
-    @MockitoBean
-    private StaticPropertyUtil staticPropertyUtil;
 
 
     @BeforeEach

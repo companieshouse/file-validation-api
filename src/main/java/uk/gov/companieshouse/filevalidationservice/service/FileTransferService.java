@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.filetransfer.AvStatusApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileApi;
 import uk.gov.companieshouse.api.model.filetransfer.FileDetailsApi;
+import uk.gov.companieshouse.filevalidationservice.exception.FileDetailsException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileDownloadException;
 import uk.gov.companieshouse.filevalidationservice.exception.FileUploadException;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,6 @@ import uk.gov.companieshouse.filevalidationservice.models.FileStatus;
 import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.FileTransferEndpoint;
-import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -26,6 +26,8 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.Optional;
 
+import static uk.gov.companieshouse.filevalidationservice.FileValidationApplication.APPLICATION_NAMESPACE;
+
 @Service
 public class FileTransferService {
 
@@ -33,7 +35,7 @@ public class FileTransferService {
 
     private final FileValidationRepository fileValidationRepository;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
+    private static final Logger LOGGER = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
     public FileTransferService(final FileTransferEndpoint fileTransferEndpoint,
                                 FileValidationRepository fileValidationRepository) {
@@ -47,7 +49,7 @@ public class FileTransferService {
             ApiResponse<FileDetailsApi> response = fileTransferEndpoint.details(id);
             return Optional.ofNullable(response.getData());
         } catch ( URIValidationException e) {
-            throw new RuntimeException(e);
+            throw new FileDetailsException(e.getMessage());
         } catch (ApiErrorResponseException e) {
             if (e.getStatusCode() == 404) {
                 return Optional.empty();
@@ -57,7 +59,7 @@ public class FileTransferService {
                     "expected", "200",
                     "status", e.getStatusCode()
             ));
-            throw new RuntimeException(e.getMessage());
+            throw new FileDetailsException(e.getMessage());
         }
     }
 

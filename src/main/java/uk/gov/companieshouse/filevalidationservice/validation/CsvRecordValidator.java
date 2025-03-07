@@ -22,6 +22,10 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_CO
 
 public class CsvRecordValidator {
 
+    private CsvRecordValidator() {
+        // Private constructor to prevent instantiation
+    }
+
     public static void validateUniqueId(String uniqueId) {
         if (uniqueId.length() > MAX_UNIQUE_ID_LENGTH) {
             throw new CSVDataValidationException("Unique ID is not valid");
@@ -61,7 +65,7 @@ public class CsvRecordValidator {
     public static void validateDateOfBirth(String dateOfBirth) {
         if(!dateOfBirth.isEmpty()) {
             try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+                var formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
                 LocalDate.parse(dateOfBirth, formatter);
             } catch (DateTimeParseException e) {
                 throw new CSVDataValidationException("Date of birth format is incorrect");

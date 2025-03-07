@@ -3,6 +3,11 @@ package uk.gov.companieshouse.filevalidationservice.utils;
 import java.util.List;
 
 public class Constants {
+
+    private Constants() {
+        // Private constructor to hide the implicit public one
+    }
+
     public static final List<String> VALID_HEADERS = List.of("unique id", "registered company name", "company number", "trading name", "first name", "last name", "date of birth",
             "property name or number","address line 1","address line 2","city or town","postcode","country");
     public static final Integer NUMBER_OF_COLUMNS = 13 ;

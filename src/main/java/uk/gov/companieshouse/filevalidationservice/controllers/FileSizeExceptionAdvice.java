@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.service.rest.err.Err;
@@ -16,6 +15,7 @@ import uk.gov.companieshouse.service.rest.err.Errors;
 
 import java.util.HashMap;
 
+import static uk.gov.companieshouse.filevalidationservice.FileValidationApplication.APPLICATION_NAMESPACE;
 import static uk.gov.companieshouse.filevalidationservice.controllers.ControllerAdvice.FILE_VALIDATION_API;
 
 /**
@@ -33,7 +33,7 @@ import static uk.gov.companieshouse.filevalidationservice.controllers.Controller
 @ControllerAdvice
 @Order(1)
 public class FileSizeExceptionAdvice {
-    private static final Logger LOG = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
+    private static final Logger LOG = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
     /**
      * Handles {@link MaxUploadSizeExceededException} exceptions by logging an error message and returning a
