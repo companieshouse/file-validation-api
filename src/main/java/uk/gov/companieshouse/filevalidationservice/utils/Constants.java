@@ -5,7 +5,7 @@ import java.util.List;
 public class Constants {
 
     private Constants() {
-        // Private constructor to hide the implicit public one
+        throw new UnsupportedOperationException("This is a constants class and cannot be instantiated");
     }
 
     public static final List<String> VALID_HEADERS = List.of("unique id", "registered company name", "company number", "trading name", "first name", "last name", "date of birth",

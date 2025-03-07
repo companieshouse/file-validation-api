@@ -23,7 +23,7 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.MAX_CO
 public class CsvRecordValidator {
 
     private CsvRecordValidator() {
-        // Private constructor to prevent instantiation
+        throw new UnsupportedOperationException("This is a constants class and cannot be instantiated");
     }
 
     public static void validateUniqueId(String uniqueId) {
