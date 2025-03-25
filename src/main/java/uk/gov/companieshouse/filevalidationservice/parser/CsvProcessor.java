@@ -3,9 +3,9 @@ package uk.gov.companieshouse.filevalidationservice.parser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -30,13 +30,12 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
 
 
-
 @Component
 public class CsvProcessor {
 
     public void parseRecords(byte[] bytesToParse) {
         int currentRow = 0;
-        try (Reader reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
+        try (var reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
 
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
             Iterator<CSVRecord> it = records.iterator();
@@ -44,24 +43,24 @@ public class CsvProcessor {
             isDataAfterHeaders(it);
             currentRow++;
             while (it.hasNext()) {
-                CSVRecord record = it.next();
+                var csvRecord = it.next();
 
-                if (!NUMBER_OF_COLUMNS.equals(record.size())) {
-                    throw new CSVDataValidationException("Incorrect number of columns");
+                if (!NUMBER_OF_COLUMNS.equals(csvRecord.size())) {
+                    throw new CSVDataValidationException(String.format("Incorrect number of columns. Received: %s Expected: %s", csvRecord.size(), NUMBER_OF_COLUMNS ));
                 }
-                CsvRecordValidator.validateUniqueId(record.get(INDEX_OF_UNIQUE_ID));
-                CsvRecordValidator.validateRegisteredCompanyName(record.get(INDEX_OF_COMPANY_NAME));
-                CsvRecordValidator.validateCompanyNumber(record.get(INDEX_OF_COMPANY_NUMBER));
-                CsvRecordValidator.validateTradingName(record.get(INDEX_OF_TRADING_NAME));
-                CsvRecordValidator.validateFirstName(record.get(INDEX_OF_FIRST_NAME));
-                CsvRecordValidator.validateLastName(record.get(INDEX_OF_LAST_NAME));
-                CsvRecordValidator.validateDateOfBirth(record.get(INDEX_OF_DATE_OF_BIRTH));
-                CsvRecordValidator.validatePropertyNameOrNo(record.get(INDEX_OF_PROPERTY_NAME_OR_NO));
-                CsvRecordValidator.validateAddressLine1(record.get(INDEX_OF_ADDRESSLINE1));
-                CsvRecordValidator.validateAddressLine2(record.get(INDEX_OF_ADDRESSLINE2));
-                CsvRecordValidator.validateCityOrTown(record.get(INDEX_OF_CITY_OR_TOWN));
-                CsvRecordValidator.validatePostcode(record.get(INDEX_OF_POSTCODE));
-                CsvRecordValidator.validateCountry(record.get(INDEX_OF_COUNTRY));
+                CsvRecordValidator.validateUniqueId(csvRecord.get(INDEX_OF_UNIQUE_ID));
+                CsvRecordValidator.validateRegisteredCompanyName(csvRecord.get(INDEX_OF_COMPANY_NAME));
+                CsvRecordValidator.validateCompanyNumber(csvRecord.get(INDEX_OF_COMPANY_NUMBER));
+                CsvRecordValidator.validateTradingName(csvRecord.get(INDEX_OF_TRADING_NAME));
+                CsvRecordValidator.validateFirstName(csvRecord.get(INDEX_OF_FIRST_NAME));
+                CsvRecordValidator.validateLastName(csvRecord.get(INDEX_OF_LAST_NAME));
+                CsvRecordValidator.validateDateOfBirth(csvRecord.get(INDEX_OF_DATE_OF_BIRTH));
+                CsvRecordValidator.validatePropertyNameOrNo(csvRecord.get(INDEX_OF_PROPERTY_NAME_OR_NO));
+                CsvRecordValidator.validateAddressLine1(csvRecord.get(INDEX_OF_ADDRESSLINE1));
+                CsvRecordValidator.validateAddressLine2(csvRecord.get(INDEX_OF_ADDRESSLINE2));
+                CsvRecordValidator.validateCityOrTown(csvRecord.get(INDEX_OF_CITY_OR_TOWN));
+                CsvRecordValidator.validatePostcode(csvRecord.get(INDEX_OF_POSTCODE));
+                CsvRecordValidator.validateCountry(csvRecord.get(INDEX_OF_COUNTRY));
                 currentRow++;
             }
 
@@ -76,9 +75,17 @@ public class CsvProcessor {
 
 
     private void isValidFieldHeaders(CSVRecord csvRecord) {
-        List<String>  actualHeaders = csvRecord.toList();
-        if (!actualHeaders.equals(VALID_HEADERS)) {
-            throw new CSVDataValidationException("Headers did not match expected headers");
+        List<String>  actualHeaders = csvRecord.stream()
+                .map(header -> {
+                    String withoutQuotes = header.replace("\"", "");
+                    String trimmed = withoutQuotes.trim();
+                    return trimmed.toLowerCase();
+                })
+                .toList();
+        List<String> mismatchedHeaders = VALID_HEADERS.stream()
+                .filter(element -> !actualHeaders.contains(element)).collect(Collectors.toList());
+        if (!mismatchedHeaders.isEmpty()) {
+            throw new CSVDataValidationException(String.format("Headers did not match expected headers, following headers are missing: %s", mismatchedHeaders));
         }
     }
 

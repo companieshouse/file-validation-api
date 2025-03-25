@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith( MockitoExtension.class )
 @Tag( "unit-test" )
-public class TikaConfigTest {
+class TikaConfigTest {
 
     @Test
     void testTikaBeanCreation(){

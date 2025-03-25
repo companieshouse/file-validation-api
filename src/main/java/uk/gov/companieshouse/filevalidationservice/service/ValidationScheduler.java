@@ -13,7 +13,6 @@ import uk.gov.companieshouse.filevalidationservice.models.FileValidation;
 import uk.gov.companieshouse.filevalidationservice.parser.CsvProcessor;
 import uk.gov.companieshouse.filevalidationservice.repositories.FileValidationRepository;
 import uk.gov.companieshouse.filevalidationservice.rest.S3UploadClient;
-import uk.gov.companieshouse.filevalidationservice.utils.StaticPropertyUtil;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -21,9 +20,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static uk.gov.companieshouse.filevalidationservice.FileValidationApplication.APPLICATION_NAMESPACE;
+
 @Component
 public class ValidationScheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger( StaticPropertyUtil.APPLICATION_NAMESPACE );
+    private static final Logger LOGGER = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
     private static final String SYSTEM = "System";
 
@@ -56,7 +57,7 @@ public class ValidationScheduler {
             recordsToProcess.forEach(recordToProcess -> {
                 Optional<FileApi> downloadedFile = Optional.empty();
                 try {
-                    LOGGER.info("Processing record with id: " + recordToProcess.getId());
+                    LOGGER.info(String.format("Processing record with id: %s, fileName: %s, amlBodyName: %s", recordToProcess.getId(), recordToProcess.getFileName(), recordToProcess.getFromLocation()));
                     fileValidationRepository.updateStatusAndRemoveErrorMessageById(recordToProcess.getId(), FileStatus.IN_PROGRESS.getLabel(), LocalDateTime.now(), SYSTEM);
                     downloadedFile = fileTransferService.get(recordToProcess.getFileId());
                     csvProcessor.parseRecords(downloadedFile.get().getBody());
@@ -64,6 +65,7 @@ public class ValidationScheduler {
                             recordToProcess.getFileName(),
                             recordToProcess.getToLocation());
                     fileValidationRepository.updateStatusById(recordToProcess.getId(), FileStatus.COMPLETED.getLabel(), LocalDateTime.now(), SYSTEM);
+                    LOGGER.info(String.format("Processing finished for record with id: %s, fileName: %s, amlBodyName: %s", recordToProcess.getId(), recordToProcess.getFileName(), recordToProcess.getFromLocation()));
                 } catch (FileDownloadException e) {
                     var errorMessage = String.format("Failed to download file: %s with message %s", recordToProcess.getId(), e.getMessage());
                     LOGGER.error(errorMessage);

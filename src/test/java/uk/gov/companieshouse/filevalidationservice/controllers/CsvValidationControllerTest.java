@@ -77,7 +77,6 @@ class CsvValidationControllerTest {
         String metaData = "{\"fileName\":\"Test file\",\"toLocation\":\"S3:abc\"}";
 
         // When
-        when(tika.detect(any(InputStream.class), any(String.class))).thenReturn("text/csv");
         var objectMapper = new ObjectMapper();
         var fileMetaData = objectMapper.readValue(metaData, FileMetaData.class);
 
@@ -93,16 +92,17 @@ class CsvValidationControllerTest {
     void testUploadInvalidFileContentReturnsStatus400() throws IOException {
         // Given
         MultipartFile file = new MockMultipartFile("abc", "test.png", "", "Hello world".getBytes() );
-            String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"abc\",\"toLocation\":\"S3:abc\"}";
+            String metaData = "{\"fileName\":\"Test file\",\"fromLocation\":\"amlBodyName\",\"toLocation\":\"S3:abc\"}";
 
         when(tika.detect(any(InputStream.class), any(String.class))).thenReturn("image/png");
 
         // Then
-        Exception thrown = assertThrows(
+        Exception exception = assertThrows(
                 BadRequestRuntimeException.class,
                 () -> csvValidationController.uploadFile(file, metaData)
         );
-        assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
+        String msg = "Please upload a valid CSV file. fileName: Test file, amlBodyName: amlBodyName";
+        assertEquals(msg, exception.getMessage());
     }
 
     @Test
@@ -113,13 +113,13 @@ class CsvValidationControllerTest {
 
         // When
         when(tika.detect(any(InputStream.class), any(String.class))).thenReturn("text/csv");
-        when(fileTransferService.upload(any(),any())).thenThrow(new FileUploadException("Please upload a valid CSV file"));
+        when(fileTransferService.upload(any(),any())).thenThrow(new FileUploadException("server error"));
 
         // Then
         Exception thrown = assertThrows(
                 InternalServerErrorRuntimeException.class,
                 () -> csvValidationController.uploadFile(file, metaData)
         );
-        assertTrue(thrown.getMessage().contains("Please upload a valid CSV file"));
+        assertTrue(thrown.getMessage().contains("server error"));
     }
 }
