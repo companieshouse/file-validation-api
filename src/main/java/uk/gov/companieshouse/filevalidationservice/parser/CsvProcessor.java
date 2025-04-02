@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
@@ -12,7 +13,10 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
+import static uk.gov.companieshouse.filevalidationservice.FileValidationApplication.APPLICATION_NAMESPACE;
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_UNIQUE_ID;
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.NUMBER_OF_COLUMNS;
 import static uk.gov.companieshouse.filevalidationservice.utils.Constants.INDEX_OF_COMPANY_NAME;
@@ -32,6 +36,8 @@ import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_
 
 @Component
 public class CsvProcessor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
     public void parseRecords(byte[] bytesToParse) {
         int currentRow = 0;
@@ -78,13 +84,14 @@ public class CsvProcessor {
         List<String>  actualHeaders = csvRecord.stream()
                 .map(header -> {
                     String withoutQuotes = header.replace("\"", "");
-                    String trimmed = withoutQuotes.trim();
-                    return trimmed.toLowerCase();
+                    String trimmed = withoutQuotes.strip();
+                    return trimmed.toLowerCase(Locale.ENGLISH);
                 })
                 .toList();
         List<String> mismatchedHeaders = VALID_HEADERS.stream()
                 .filter(element -> !actualHeaders.contains(element)).collect(Collectors.toList());
         if (!mismatchedHeaders.isEmpty()) {
+            LOGGER.error(String.format("Incorrect headers: %s", actualHeaders));
             throw new CSVDataValidationException(String.format("Headers did not match expected headers, following headers are missing: %s", mismatchedHeaders));
         }
     }
