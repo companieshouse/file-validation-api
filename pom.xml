@@ -23,21 +23,20 @@
 		<spring-boot-dependencies.version>3.4.4</spring-boot-dependencies.version>
 		<spring-boot-maven-plugin.version>3.4.4</spring-boot-maven-plugin.version>
 		<dependency-check-plugin.version>8.3.1</dependency-check-plugin.version>
-		<sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
 		<junit.version>4.13.2</junit.version>
-		<junit-jupiter.version>1.20.1</junit-jupiter.version>
+		<junit-jupiter.version>1.20.6</junit-jupiter.version>
 		<api-helper-java.version>3.0.1</api-helper-java.version>
 		<flapdoodle.version>4.16.1</flapdoodle.version>
 		<commons-csv.version>1.12.0</commons-csv.version>
+
+		<sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+		<sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+		<sonar.login></sonar.login>
+		<sonar.password></sonar.password>
+		<sonar.projectName>file-validation-api</sonar.projectName>
+		<sonar.projectKey>uk.gov.companieshouse:file-validation-api</sonar.projectKey>
+		<sonar.java.binaries>${project.basedir}/target,${project.basedir}/target/*</sonar.java.binaries>
 	</properties>
-	<profiles>
-		<profile>
-			<id>sonar-pr-analysis</id>
-			<properties>
-				<sonar.pullrequest.base>main</sonar.pullrequest.base>
-			</properties>
-		</profile>
-	</profiles>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -148,12 +147,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sonarsource.scanner.maven</groupId>
-			<artifactId>sonar-maven-plugin</artifactId>
-			<version>${sonar-maven-plugin.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
@@ -223,6 +216,11 @@
 					<target>21</target>
 					<parameters>true</parameters>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar-maven-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
