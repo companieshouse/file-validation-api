@@ -40,7 +40,7 @@ public class CsvProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
     public void parseRecords(byte[] bytesToParse) {
-        int currentRow = 0;
+        int currentRow = 1;
         try (var reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse))) {
 
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
@@ -71,9 +71,9 @@ public class CsvProcessor {
             }
 
         } catch (IllegalStateException ex) {
-            throw new CSVDataValidationException(String.format("Error parsing, could be corrupt CSV, at record number %s,  %s", currentRow , ex.getMessage()));
+            throw new CSVDataValidationException(String.format("Error parsing, could be corrupt CSV, on line %s,  %s", currentRow , ex.getMessage()));
         } catch (CSVDataValidationException ex) {
-            throw new CSVDataValidationException(String.format("Data validation exception: %s at row number %s", ex.getMessage(), currentRow));
+            throw new CSVDataValidationException(String.format("Data validation exception: %s on line %s", ex.getMessage(), currentRow));
         } catch (IOException e) {
             throw new CSVDataValidationException(String.format("Data validation reading the file: %s", e.getMessage()));
         }
