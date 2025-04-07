@@ -92,7 +92,7 @@ public class CsvProcessor {
                 .filter(element -> !actualHeaders.contains(element)).collect(Collectors.toList());
         if (!mismatchedHeaders.isEmpty()) {
             LOGGER.error(String.format("Incorrect headers provided: %s", actualHeaders));
-            throw new CSVDataValidationException(String.format("Headers did not match expected headers, following headers are missing: %s", mismatchedHeaders));
+            throw new CSVDataValidationException(String.format("Headers did not match expected headers, the following headers are missing: %s", mismatchedHeaders));
         }
     }
 

@@ -50,7 +50,7 @@ class FileTransferServiceTest {
     private FileTransferService fileTransferService;
 
     @Test
-    void testGetFile() throws ApiErrorResponseException, URIValidationException {
+    void testGetFileSuccess() throws ApiErrorResponseException, URIValidationException {
         // given
         var data = "Hello World!".getBytes();
         FileDetailsApi fileDetailsApi = new FileDetailsApi(TEST_FILE_ID, "avTimestamp", AvStatusApi.CLEAN, "contentType", 100, TEST_FILE_NAME, "createdOn", null);
