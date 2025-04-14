@@ -36,6 +36,7 @@ class CsvProcessorTest {
             "src/test/resources/oneGoodRecord.csv",
             "src/test/resources/noUniqueId.csv",
             "src/test/resources/good_multiple_records.csv",
+            "src/test/resources/good_multiple_records_with_BOM.csv",
             "src/test/resources/good_multiple_records_with_case_mismatch_column_names.csv",
             "src/test/resources/good_multiple_records_with_column_names_in_quotes.csv"
     })
