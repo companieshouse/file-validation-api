@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.input.BOMInputStream;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
@@ -40,11 +41,9 @@ public class CsvProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
-    private static final String BOM = "\\ufeff";
-
     public void parseRecords(byte[] bytesToParse) {
         int currentRow = 1;
-        try (var reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse), StandardCharsets.UTF_8)) {
+        try (var reader = new InputStreamReader(BOMInputStream.builder().setInputStream(new ByteArrayInputStream(bytesToParse)).get(), StandardCharsets.UTF_8)) {
 
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
             Iterator<CSVRecord> it = records.iterator();
@@ -88,8 +87,7 @@ public class CsvProcessor {
                 .map(header -> {
                     String withoutQuotes = header.replace("\"", "");
                     String trimmed = withoutQuotes.strip();
-                    String lowercase = trimmed.toLowerCase(Locale.ENGLISH);
-                    return removeBOM(lowercase);
+                    return trimmed.toLowerCase(Locale.ENGLISH);
                 })
                 .toList();
         List<String> mismatchedHeaders = VALID_HEADERS.stream()
@@ -108,14 +106,6 @@ public class CsvProcessor {
         isValidFieldHeaders(iterator.next());
         if (!iterator.hasNext()) {
             throw new CSVDataValidationException("No records in file after headers");
-        }
-    }
-
-    private String removeBOM (String s) {
-        if (s.startsWith(BOM)) {
-            return s.substring(BOM.length());
-        } else {
-            return s;
         }
     }
 }
