@@ -7,9 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.input.BOMInputStream;
 import org.springframework.stereotype.Component;
@@ -45,11 +45,16 @@ public class CsvProcessor {
         int currentRow = 1;
         try (var reader = new InputStreamReader(BOMInputStream.builder().setInputStream(new ByteArrayInputStream(bytesToParse)).get(), StandardCharsets.UTF_8)) {
 
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
+            CSVParser parser = CSVFormat.DEFAULT.parse(reader);
+            List<CSVRecord> records = parser.getRecords();
             Iterator<CSVRecord> it = records.iterator();
 
             isDataAfterHeaders(it);
+
+            isValidFieldHeaders(records.getFirst());
+
             currentRow++;
+
             while (it.hasNext()) {
                 var csvRecord = it.next();
 
@@ -91,7 +96,7 @@ public class CsvProcessor {
                 })
                 .toList();
         List<String> mismatchedHeaders = VALID_HEADERS.stream()
-                .filter(element -> !actualHeaders.contains(element)).collect(Collectors.toList());
+                .filter(element -> !actualHeaders.contains(element)).toList();
         if (!mismatchedHeaders.isEmpty()) {
             LOGGER.error(String.format("Incorrect headers provided: %s", actualHeaders));
             throw new CSVDataValidationException(String.format("Headers did not match expected headers, following headers are missing: %s", mismatchedHeaders));
@@ -103,7 +108,7 @@ public class CsvProcessor {
         if (!iterator.hasNext()) {
             throw new CSVDataValidationException("No records in file, not even headers");
         }
-        isValidFieldHeaders(iterator.next());
+        iterator.next();
         if (!iterator.hasNext()) {
             throw new CSVDataValidationException("No records in file after headers");
         }
