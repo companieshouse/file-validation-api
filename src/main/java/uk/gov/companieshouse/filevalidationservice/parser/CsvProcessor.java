@@ -45,13 +45,17 @@ public class CsvProcessor {
         int currentRow = 1;
         try (var reader = new InputStreamReader(BOMInputStream.builder().setInputStream(new ByteArrayInputStream(bytesToParse)).get(), StandardCharsets.UTF_8)) {
 
-            CSVParser parser = CSVFormat.DEFAULT.parse(reader);
-            List<CSVRecord> records = parser.getRecords();
-            Iterator<CSVRecord> it = records.iterator();
+            CSVParser parser = CSVFormat.DEFAULT
+                    .builder()
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .build()
+                    .parse(reader);
+            Iterator<CSVRecord> it = parser.iterator();
 
             isDataAfterHeaders(it);
 
-            isValidFieldHeaders(records.getFirst());
+            isValidFieldHeaders(parser.getHeaderNames());
 
             currentRow++;
 
@@ -87,8 +91,9 @@ public class CsvProcessor {
     }
 
 
-    private void isValidFieldHeaders(CSVRecord csvRecord) {
-        List<String>  actualHeaders = csvRecord.stream()
+    private void isValidFieldHeaders(List<String> headers) {
+        LOGGER.debug("Validating headers");
+        List<String>  actualHeaders = headers.stream()
                 .map(header -> {
                     String withoutQuotes = header.replace("\"", "");
                     String trimmed = withoutQuotes.strip();
@@ -105,10 +110,6 @@ public class CsvProcessor {
 
 
     private void isDataAfterHeaders (Iterator<CSVRecord> iterator) {
-        if (!iterator.hasNext()) {
-            throw new CSVDataValidationException("No records in file, not even headers");
-        }
-        iterator.next();
         if (!iterator.hasNext()) {
             throw new CSVDataValidationException("No records in file after headers");
         }
