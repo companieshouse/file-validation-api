@@ -71,6 +71,7 @@ public class CsvProcessor {
 
             while (it.hasNext()) {
                 var csvRecord = it.next();
+                LOGGER.debug(String.format("Processing record: %s", csvRecord.toString()));
 
                 if (!NUMBER_OF_COLUMNS.equals(csvRecord.size())) {
                     throw new CSVDataValidationException(String.format("Incorrect number of columns. Received: %s Expected: %s", csvRecord.size(), NUMBER_OF_COLUMNS ));
