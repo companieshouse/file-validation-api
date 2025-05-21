@@ -46,6 +46,18 @@ class CsvProcessorTest {
         assertDoesNotThrow(() -> csvProcessor.parseRecords(bytes));
     }
 
+    @Test
+    void validRecordsMustParseWithBOM() throws IOException {
+        File file = new File("src/test/resources/good_multiple_records.csv");
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+        byte[] bomBytes = new byte[] {(byte)0xEF, (byte)0xBB, (byte)0xBF};
+
+        byte[] combinedBytes = new byte[bomBytes.length + bytes.length];
+        System.arraycopy(bomBytes, 0, combinedBytes, 0, bomBytes.length);
+        System.arraycopy(bytes, 0, combinedBytes, bomBytes.length, bytes.length);
+        assertDoesNotThrow(() -> csvProcessor.parseRecords(combinedBytes));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "src/test/resources/emptyCsv.csv",
