@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +11,7 @@ import java.util.Locale;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.input.BOMInputStream;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.filevalidationservice.exception.CSVDataValidationException;
 import uk.gov.companieshouse.filevalidationservice.validation.CsvRecordValidator;
@@ -43,17 +43,7 @@ public class CsvProcessor {
 
     public void parseRecords(byte[] bytesToParse) {
         int currentRow = 1;
-
-        // Check for UTF-8 BOM (0xEF,0xBB,0xBF)
-        if (bytesToParse.length >= 3 &&
-            (bytesToParse[0] & 0xFF) == 0xEF &&
-            (bytesToParse[1] & 0xFF) == 0xBB &&
-            (bytesToParse[2] & 0xFF) == 0xBF) {
-            // Strip BOM
-            bytesToParse = Arrays.copyOfRange(bytesToParse, 3, bytesToParse.length);
-        }
-
-        try (var reader = new InputStreamReader(new ByteArrayInputStream(bytesToParse), StandardCharsets.UTF_8)) {
+        try (var reader = new InputStreamReader(BOMInputStream.builder().setInputStream(new ByteArrayInputStream(bytesToParse)).get(), StandardCharsets.UTF_8)) {
 
             CSVParser parser = CSVFormat.DEFAULT.parse(reader);
             Iterator<CSVRecord> it = parser.iterator();
@@ -62,7 +52,6 @@ public class CsvProcessor {
             currentRow++;
             while (it.hasNext()) {
                 var csvRecord = it.next();
-                LOGGER.debug(String.format("Processing record: %s", csvRecord.toString()));
 
                 if (!NUMBER_OF_COLUMNS.equals(csvRecord.size())) {
                     throw new CSVDataValidationException(String.format("Incorrect number of columns. Received: %s Expected: %s", csvRecord.size(), NUMBER_OF_COLUMNS ));
@@ -94,7 +83,6 @@ public class CsvProcessor {
 
 
     private void isValidFieldHeaders(CSVRecord headers) {
-        LOGGER.debug("Validating headers");
         List<String>  actualHeaders = headers.stream()
                 .map(header -> {
                     String withoutQuotes = header.replace("\"", "");
