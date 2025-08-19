@@ -13,12 +13,22 @@ import org.springframework.mock.web.MockHttpServletResponse;
 class LoggingInterceptorTest {
 
     @Test
-    void prehandleSucceeds(){
+    void prehandleSucceeds() {
         final var request = new MockHttpServletRequest();
         final var response = new MockHttpServletResponse();
 
-        Assertions.assertTrue( new LoggingInterceptor().preHandle( request, response, null ) );
-        Assertions.assertEquals( 200, response.getStatus() );
+        Assertions.assertTrue(new LoggingInterceptor().preHandle(request, response, null));
+        Assertions.assertEquals(200, response.getStatus());
     }
 
+    @Test
+    void postHandleLogsEndRequestProcessing() {
+        final var request = new MockHttpServletRequest();
+        final var response = new MockHttpServletResponse();
+        final var interceptor = new LoggingInterceptor();
+
+        interceptor.preHandle(request, response, null);
+        interceptor.postHandle(request, response, null, null);
+        Assertions.assertEquals(200, response.getStatus());
+    }
 }
