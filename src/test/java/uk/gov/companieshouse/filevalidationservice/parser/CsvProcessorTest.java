@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+import static uk.gov.companieshouse.filevalidationservice.utils.Constants.VALID_HEADERS;
 
 import java.io.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -103,5 +105,48 @@ class CsvProcessorTest {
         lenient().when(csvFormat.parse(reader)).thenThrow(new IllegalStateException("Test IllegalStateException"));
 
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));
+    }
+
+    @Test
+    void csvRecordWithMismatchedHeadersMustFailToParse() throws IOException {
+        // header missing one required column (VALID_HEADERS will reject it)
+        String badHeaders = "wrongheader1,wrongheader2\n" +
+                "value1,value2\n";
+        byte[] bytes = badHeaders.getBytes(StandardCharsets.UTF_8);
+
+        CSVDataValidationException ex = assertThrows(
+                CSVDataValidationException.class,
+                () -> csvProcessor.parseRecords(bytes)
+        );
+        // verify the specific message about headers
+        assert(ex.getMessage().contains("Headers did not match expected headers"));
+    }
+
+    @Test
+    void csvRecordWithOnlyHeadersMustFailToParse() throws IOException {
+        // contains headers, but no data rows
+        String onlyHeaders = String.join(",", VALID_HEADERS) + "\n";
+        byte[] bytes = onlyHeaders.getBytes(StandardCharsets.UTF_8);
+
+        CSVDataValidationException ex = assertThrows(
+                CSVDataValidationException.class,
+                () -> csvProcessor.parseRecords(bytes)
+        );
+        assert(ex.getMessage().contains("No records in file after headers"));
+    }
+
+    @Test
+    void csvRecordWithTooFewColumnsTriggersWrappedCsvValidationException() throws IOException {
+        // Correct headers, but only one column instead of expected NUMBER_OF_COLUMNS
+        String badRecord = String.join(",", VALID_HEADERS) + "\n" +
+                "onlyOneColumn\n";
+        byte[] bytes = badRecord.getBytes(StandardCharsets.UTF_8);
+
+        CSVDataValidationException ex = assertThrows(
+                CSVDataValidationException.class,
+                () -> csvProcessor.parseRecords(bytes)
+        );
+        // Ensure it's wrapped with "Data validation exception"
+        assert(ex.getMessage().contains("Data validation exception"));
     }
 }
