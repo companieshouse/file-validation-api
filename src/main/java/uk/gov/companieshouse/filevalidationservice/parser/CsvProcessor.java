@@ -42,7 +42,7 @@ public class CsvProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger( APPLICATION_NAMESPACE );
 
     public void parseRecords(byte[] bytesToParse) {
-        int currentRow = 1;
+        var currentRow = 1;
         try (var reader = new InputStreamReader(BOMInputStream.builder().setInputStream(new ByteArrayInputStream(bytesToParse)).get(), StandardCharsets.UTF_8)) {
 
             CSVParser parser = CSVFormat.DEFAULT.parse(reader);

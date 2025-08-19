@@ -98,7 +98,7 @@ public class FileTransferService {
     }
 
     private FileValidation setFileToValidate(String fileId,FileMetaData fileMetaData) {
-        FileValidation fileValidation = new FileValidation();
+        var fileValidation = new FileValidation();
         fileValidation.setId(autoGenerateId());
         fileValidation.setFileId(fileId);
         fileValidation.setCreatedAt(LocalDateTime.now());
