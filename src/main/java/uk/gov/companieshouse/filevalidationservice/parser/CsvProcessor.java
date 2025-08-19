@@ -83,18 +83,22 @@ public class CsvProcessor {
 
 
     private void isValidFieldHeaders(CSVRecord headers) {
-        List<String>  actualHeaders = headers.stream()
-                .map(header -> {
-                    String withoutQuotes = header.replace("\"", "");
-                    String trimmed = withoutQuotes.strip();
-                    return trimmed.toLowerCase(Locale.ENGLISH);
-                })
+        var actualHeaders = headers.stream()
+                .map(header -> header.replace("\"", "").strip().toLowerCase(Locale.ENGLISH))
                 .toList();
-        List<String> mismatchedHeaders = VALID_HEADERS.stream()
-                .filter(element -> !actualHeaders.contains(element)).toList();
+
+        var mismatchedHeaders = VALID_HEADERS.stream()
+                .filter(element -> !actualHeaders.contains(element))
+                .toList();
+
         if (!mismatchedHeaders.isEmpty()) {
             LOGGER.error(String.format("Incorrect headers provided: %s", actualHeaders));
-            throw new CSVDataValidationException(String.format("Headers did not match expected headers, following headers are missing: %s", mismatchedHeaders));
+            throw new CSVDataValidationException(
+                    String.format(
+                            "Headers did not match expected headers, following headers are missing: %s",
+                            mismatchedHeaders
+                    )
+            );
         }
     }
 
