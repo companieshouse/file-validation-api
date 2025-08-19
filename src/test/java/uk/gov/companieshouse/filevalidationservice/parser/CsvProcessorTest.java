@@ -109,7 +109,6 @@ class CsvProcessorTest {
 
     @Test
     void csvRecordWithMismatchedHeadersMustFailToParse() throws IOException {
-        // header missing one required column (VALID_HEADERS will reject it)
         String badHeaders = "wrongheader1,wrongheader2\n" +
                 "value1,value2\n";
         byte[] bytes = badHeaders.getBytes(StandardCharsets.UTF_8);
@@ -118,13 +117,11 @@ class CsvProcessorTest {
                 CSVDataValidationException.class,
                 () -> csvProcessor.parseRecords(bytes)
         );
-        // verify the specific message about headers
         assert(ex.getMessage().contains("Headers did not match expected headers"));
     }
 
     @Test
     void csvRecordWithOnlyHeadersMustFailToParse() throws IOException {
-        // contains headers, but no data rows
         String onlyHeaders = String.join(",", VALID_HEADERS) + "\n";
         byte[] bytes = onlyHeaders.getBytes(StandardCharsets.UTF_8);
 
@@ -137,7 +134,6 @@ class CsvProcessorTest {
 
     @Test
     void csvRecordWithTooFewColumnsTriggersWrappedCsvValidationException() throws IOException {
-        // Correct headers, but only one column instead of expected NUMBER_OF_COLUMNS
         String badRecord = String.join(",", VALID_HEADERS) + "\n" +
                 "onlyOneColumn\n";
         byte[] bytes = badRecord.getBytes(StandardCharsets.UTF_8);
@@ -146,7 +142,7 @@ class CsvProcessorTest {
                 CSVDataValidationException.class,
                 () -> csvProcessor.parseRecords(bytes)
         );
-        // Ensure it's wrapped with "Data validation exception"
+
         assert(ex.getMessage().contains("Data validation exception"));
     }
 }
