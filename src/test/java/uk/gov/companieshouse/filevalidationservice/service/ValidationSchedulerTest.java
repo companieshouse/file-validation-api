@@ -40,8 +40,8 @@ class ValidationSchedulerTest {
     private ValidationScheduler scheduler;
 
     FileApi fileApi;
-    private final static String TEST_FILE_NAME = "test.csv";
-    private final static String FILE_LOCATION = "s3://location";
+    private static final String TEST_FILE_NAME = "test.csv";
+    private static final String FILE_LOCATION = "s3://location";
 
     @BeforeEach
     void setUp() {

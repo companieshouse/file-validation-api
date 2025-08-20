@@ -52,11 +52,6 @@ class S3UploadClientTest {
         // given
         byte[] bytes = "hello".getBytes();
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket("testBucket")
-                .key("testFolder/testFile")
-                .build();
-
         // when
         doThrow(RuntimeException.class).when(mockS3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
 
@@ -86,10 +81,6 @@ class S3UploadClientTest {
 
         byte[] bytes = "hello".getBytes();
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket("testBucket")
-                .key("testFolder/validator-error/testFile")
-                .build();
 
         // when
         doThrow(RuntimeException.class).when(mockS3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));

@@ -37,8 +37,8 @@ import java.util.Optional;
 @ExtendWith( MockitoExtension.class )
 class FileTransferServiceTest {
 
-    private final static String TEST_FILE_ID = "test-file-id";
-    private final static String TEST_FILE_NAME = "test-file-name";
+    private static final String TEST_FILE_ID = "test-file-id";
+    private static final String TEST_FILE_NAME = "test-file-name";
 
     @Mock
     private FileTransferEndpoint fileTransferEndpoint;

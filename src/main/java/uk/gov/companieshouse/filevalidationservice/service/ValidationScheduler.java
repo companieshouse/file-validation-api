@@ -95,4 +95,5 @@ public class ValidationScheduler {
             LOGGER.info("Scheduler finished at : "+ LocalDateTime.now());
         }
     }
+
 }

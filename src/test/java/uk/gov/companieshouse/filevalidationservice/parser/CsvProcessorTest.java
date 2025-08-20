@@ -101,7 +101,6 @@ class CsvProcessorTest {
     void csvRecordThrowsIllegalStateExceptionMustFailToParse() throws IOException {
         byte[] bytes = new byte[0];
         Reader reader = new InputStreamReader(new ByteArrayInputStream(bytes));
-        CSVParser parser = mock(CSVParser.class);
         lenient().when(csvFormat.parse(reader)).thenThrow(new IllegalStateException("Test IllegalStateException"));
 
         assertThrows(CSVDataValidationException.class, () -> csvProcessor.parseRecords(bytes));

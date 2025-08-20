@@ -42,4 +42,5 @@ public class S3UploadClient {
             throw new S3UploadException(e.getMessage());
         }
     }
+
 }
