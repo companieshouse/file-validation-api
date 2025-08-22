@@ -35,7 +35,7 @@
 		<sonar.password></sonar.password>
 		<sonar.projectName>file-validation-api</sonar.projectName>
 		<sonar.projectKey>uk.gov.companieshouse:file-validation-api</sonar.projectKey>
-		<sonar.java.binaries>${project.basedir}/target,${project.basedir}/target/*</sonar.java.binaries>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
