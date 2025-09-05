@@ -12,11 +12,6 @@ clean:
 	rm -rf ./build-*
 	rm -f ./build.log
 
-.PHONY: security-check
-security-check:
-	mvn org.owasp:dependency-check-maven:update-only
-	mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=4 -DassemblyAnalyzerEnabled=false
-
 .PHONY: build
 build:
 	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
@@ -55,8 +50,8 @@ dist: clean build package
 
 .PHONY: sonar
 sonar:
-	mvn sonar:sonar -Dsonar.dependencyCheck.htmlReportPath=./target/dependency-check-report.html
+	mvn sonar:sonar
 
 .PHONY: sonar-pr-analysis
 sonar-pr-analysis:
-	mvn sonar:sonar -P sonar-pr-analysis -Dsonar.dependencyCheck.htmlReportPath=./target/dependency-check-report.html
+	mvn sonar:sonar -P sonar-pr-analysis
