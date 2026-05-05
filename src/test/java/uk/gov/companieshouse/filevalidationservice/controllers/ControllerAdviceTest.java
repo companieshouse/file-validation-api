@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.filevalidationservice.controllers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,10 +18,6 @@ import uk.gov.companieshouse.filevalidationservice.configuration.InterceptorConf
 import uk.gov.companieshouse.filevalidationservice.exception.InternalServerErrorRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.exception.NotFoundRuntimeException;
 import uk.gov.companieshouse.filevalidationservice.service.FileTransferService;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CsvValidationController.class)
 class ControllerAdviceTest {
