@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableSchedulerLock(defaultLockAtMostFor = "${amlData.fileValidation.scheduler.default-lock-at-most-for}") // Lock for maximum XX minutes
 public class ShedLockConfig {
 
-    @Value( "${spring.data.mongodb.database}" )
+    @Value( "${spring.mongodb.database}" )
     private String mongoDB;
 
     @Bean
