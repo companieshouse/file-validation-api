@@ -20,7 +20,7 @@
 		<private-api-sdk-java.version>4.0.248</private-api-sdk-java.version>
 		<api-sdk-manager-java-library.version>3.0.22</api-sdk-manager-java-library.version>
 		<api-security-java.version>2.0.7</api-security-java.version>
-		<spring-boot.version>4.0.7</spring-boot.version>
+		<spring-boot.version>4.0.9</spring-boot.version>
 		<spring-boot-dependencies.version>${spring-boot.version}</spring-boot-dependencies.version>
 		<spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
 		<junit.version>4.13.2</junit.version>
@@ -33,11 +33,22 @@
 		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<jib-source-image.name>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21</jib-source-image.name>
 		<jib-target-image.name>416670754337.dkr.ecr.eu-west-2.amazonaws.com/file-validation-api</jib-target-image.name>
-		<tika-core.version>3.3.0</tika-core.version>
+		<tika-core.version>3.3.3</tika-core.version>
+		<mongodb-driver.version>5.11.1</mongodb-driver.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- Overrides the MongoDB driver managed by spring-boot-dependencies to pick up
+			     CVE-2026-18710, CVE-2026-88032 and CVE-2026-88033 fixes. Must be declared before
+			     the Spring Boot BOM so it takes precedence. Remove once Boot manages >= 5.11.1. -->
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver-bom</artifactId>
+				<version>${mongodb-driver.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
