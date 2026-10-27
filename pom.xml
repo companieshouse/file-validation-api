@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>uk.gov.companieshouse</groupId>
 		<artifactId>companies-house-parent</artifactId>
-		<version>2.1.14</version>
+		<version>3.0.0</version>
 		<relativePath/>
 	</parent>
 	<artifactId>file-validation-api</artifactId>
@@ -14,8 +14,6 @@
 	<description>ACSP workstream</description>
 	<properties>
 		<main.class>uk.gov.companieshouse.filevalidationservice.FileValidationApplication</main.class>
-		<maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-		<maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
 		<java.version>21</java.version>
 		<structured-logging.version>3.0.55</structured-logging.version> <!--DONE-->
 		<rest-service-common-library-version>2.0.11</rest-service-common-library-version>
@@ -36,14 +34,6 @@
 		<jib-source-image.name>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21</jib-source-image.name>
 		<jib-target-image.name>416670754337.dkr.ecr.eu-west-2.amazonaws.com/file-validation-api</jib-target-image.name>
 		<tika-core.version>3.3.0</tika-core.version>
-
-		<sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
-		<sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
-		<sonar.login></sonar.login>
-		<sonar.password></sonar.password>
-		<sonar.projectName>file-validation-api</sonar.projectName>
-		<sonar.projectKey>uk.gov.companieshouse:file-validation-api</sonar.projectKey>
-		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 
 	<dependencyManagement>
@@ -190,30 +180,6 @@
 						<expandClasspathDependencies>true</expandClasspathDependencies>
 					</container>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<parameters>true</parameters>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>${sonar-maven-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
