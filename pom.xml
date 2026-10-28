@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>uk.gov.companieshouse</groupId>
 		<artifactId>companies-house-parent</artifactId>
-		<version>2.1.14</version>
+		<version>3.0.0</version>
 		<relativePath/>
 	</parent>
 	<artifactId>file-validation-api</artifactId>
@@ -14,15 +14,13 @@
 	<description>ACSP workstream</description>
 	<properties>
 		<main.class>uk.gov.companieshouse.filevalidationservice.FileValidationApplication</main.class>
-		<maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-		<maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
 		<java.version>21</java.version>
 		<structured-logging.version>3.0.55</structured-logging.version> <!--DONE-->
 		<rest-service-common-library-version>2.0.11</rest-service-common-library-version>
 		<private-api-sdk-java.version>4.0.248</private-api-sdk-java.version>
 		<api-sdk-manager-java-library.version>3.0.22</api-sdk-manager-java-library.version>
 		<api-security-java.version>2.0.7</api-security-java.version>
-		<spring-boot.version>4.0.7</spring-boot.version>
+		<spring-boot.version>4.0.9</spring-boot.version>
 		<spring-boot-dependencies.version>${spring-boot.version}</spring-boot-dependencies.version>
 		<spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
 		<junit.version>4.13.2</junit.version>
@@ -35,19 +33,22 @@
 		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<jib-source-image.name>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21</jib-source-image.name>
 		<jib-target-image.name>416670754337.dkr.ecr.eu-west-2.amazonaws.com/file-validation-api</jib-target-image.name>
-		<tika-core.version>3.3.0</tika-core.version>
-
-		<sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
-		<sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
-		<sonar.login></sonar.login>
-		<sonar.password></sonar.password>
-		<sonar.projectName>file-validation-api</sonar.projectName>
-		<sonar.projectKey>uk.gov.companieshouse:file-validation-api</sonar.projectKey>
-		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<tika-core.version>3.3.3</tika-core.version>
+		<mongodb-driver.version>5.11.1</mongodb-driver.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- Overrides the MongoDB driver managed by spring-boot-dependencies to pick up
+			     CVE-2026-18710, CVE-2026-88032 and CVE-2026-88033 fixes. Must be declared before
+			     the Spring Boot BOM so it takes precedence. Remove once Boot manages >= 5.11.1. -->
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver-bom</artifactId>
+				<version>${mongodb-driver.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
@@ -190,30 +191,6 @@
 						<expandClasspathDependencies>true</expandClasspathDependencies>
 					</container>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<parameters>true</parameters>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>${sonar-maven-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>

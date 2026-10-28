@@ -27,4 +27,4 @@ else
 
 fi
 
-exec java ${JAVA_MEM_ARGS} -jar ${PROXY_ARGS} -Dserver.port="${PORT}" -Dspring.data.mongodb.uri="$MONGODB_URL" "${APP_DIR}/file-validation-api.jar"
+exec java ${JAVA_MEM_ARGS} -jar ${PROXY_ARGS} -Dserver.port="${PORT}" -Dspring.mongodb.uri="$MONGODB_URL" "${APP_DIR}/file-validation-api.jar"
